@@ -1,7 +1,7 @@
 name: Android APK
 on:
   push:
-    branches: [main, doctor-familiar-2.0, doctor-familiar-3.0]
+    branches: [main, doctor-familiar-2.0, doctor-familiar-3.0, doctor-familiar-4.0]
   workflow_dispatch:
 permissions:
   contents: read
@@ -23,7 +23,7 @@ jobs:
       - name: Crear estructura móvil si falta
         run: |
           if [ ! -d android ] || [ ! -d ios ]; then
-            flutter create --org com.tudoctorfamiliar.v3 --platforms=android,ios --project-name=tu_doctor_familiar .
+            flutter create --org com.tudoctorfamiliar.v4 --platforms=android,ios --project-name=tu_doctor_familiar .
           fi
       - name: Configurar permiso de micrófono
         run: |
@@ -31,26 +31,27 @@ jobs:
           from pathlib import Path
           p = Path('android/app/src/main/AndroidManifest.xml')
           s = p.read_text()
-          permission = '    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n'
+          permission = '    <uses-permission android:name="android.permission.RECORD_AUDIO" />\\n'
           if 'android.permission.RECORD_AUDIO' not in s:
               manifest_start = s.find('<manifest')
               i = s.find('>', manifest_start) + 1
-              s = s[:i] + '\n' + permission + s[i:]
-          s = s.replace('android:label="tu_doctor_familiar"', 'android:label="TU DOCTOR FAMILIAR 3.0"')
+              s = s[:i] + '\\n' + permission + s[i:]
+          s = s.replace('android:label="tu_doctor_familiar"', 'android:label="TU DOCTOR FAMILIAR 4.0"')
+          s = s.replace('android:label="TU DOCTOR FAMILIAR 3.0"', 'android:label="TU DOCTOR FAMILIAR 4.0"')
           p.write_text(s)
           PY
       - name: Instalar dependencias
         run: flutter pub get
       - name: Analizar código
         run: dart analyze
-      - name: Ejecutar pruebas de seguridad
+      - name: Ejecutar pruebas
         run: flutter test
       - name: Compilar APK
         run: flutter build apk --release
       - name: Guardar APK
         uses: actions/upload-artifact@v4
         with:
-          name: TU-DOCTOR-FAMILIAR-3.0-Android
+          name: TU-DOCTOR-FAMILIAR-4.0-Android
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 30
