@@ -142,11 +142,11 @@ class _HealthRecordsPageState extends State<HealthRecordsPage> {
 
   Future<void> _backup() async {
     final payload = <String,dynamic>{'format':'tu_doctor_familiar_v6_backup','version':1,'patient':patient,'exportedAt':DateTime.now().toIso8601String(), ...records};
-    await Share.share('Respaldo TU DOCTOR FAMILIAR V6.0. Contiene datos sensibles; guárdalo en un lugar privado.\n' + jsonEncode(payload));
+    await Share.share('Respaldo TU DOCTOR FAMILIAR V7.0. Contiene datos sensibles; guárdalo en un lugar privado.\n' + jsonEncode(payload));
   }
 
   Future<void> _restore() async {
-    final raw = await _ask('Restaurar respaldo', 'Pega el JSON del respaldo V6', lines: 6); if (raw == null || raw.isEmpty) return;
+    final raw = await _ask('Restaurar respaldo', 'Pega el JSON del respaldo', lines: 6); if (raw == null || raw.isEmpty) return;
     try {
       final payload = jsonDecode(raw) as Map<String,dynamic>;
       if (payload['format'] != 'tu_doctor_familiar_v6_backup' || payload['patient'] != patient) { _msg('El respaldo no corresponde a este perfil o no es válido.'); return; }
@@ -158,7 +158,7 @@ class _HealthRecordsPageState extends State<HealthRecordsPage> {
       }
       await _save(); if (mounted) setState(() {});
       _msg('Respaldo restaurado sin borrar registros existentes.');
-    } catch (_) { _msg('El archivo no es un respaldo V6 válido. No se modificaron los registros.'); }
+    } catch (_) { _msg('El archivo no es un respaldo válido. No se modificaron los registros.'); }
   }
 
   @override
