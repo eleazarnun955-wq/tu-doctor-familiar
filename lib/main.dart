@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
+import 'core/secure_vault.dart';
 
 void main() => runApp(const TuDoctorFamiliarApp());
 
@@ -51,18 +52,43 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _load() async {
     final p = await SharedPreferences.getInstance();
-    final raw = p.getString('readings') ?? '[]';
-    try { readings = (jsonDecode(raw) as List).map((e) => Reading.fromJson(Map<String,dynamic>.from(e))).toList()..sort((a,b)=>b.date.compareTo(a.date)); } catch (_) { readings = []; }
-    lowTarget = p.getDouble('lowTarget') ?? 80;
-    highTarget = p.getDouble('highTarget') ?? 130;
+    // Prioriza el almacén cifrado. Si es una instalación anterior, migra
+    // los valores heredados y conserva los originales hasta confirmar escritura.
+    try {
+      final encryptedReadings = await SecureVault.read('readings');
+      final raw = encryptedReadings ?? p.getString('readings') ?? '[]';
+      readings = (jsonDecode(raw) as List)
+          .map((e) => Reading.fromJson(Map<String,dynamic>.from(e)))
+          .toList()..sort((a,b)=>b.date.compareTo(a.date));
+      final encryptedLow = await SecureVault.read('lowTarget');
+      final encryptedHigh = await SecureVault.read('highTarget');
+      lowTarget = double.tryParse(encryptedLow ?? '') ?? p.getDouble('lowTarget') ?? 80;
+      highTarget = double.tryParse(encryptedHigh ?? '') ?? p.getDouble('highTarget') ?? 130;
+      if (encryptedReadings == null && p.containsKey('readings')) {
+        await SecureVault.write('readings', jsonEncode(readings.map((e)=>e.toJson()).toList()));
+        await SecureVault.write('lowTarget', lowTarget.toString());
+        await SecureVault.write('highTarget', highTarget.toString());
+        await p.remove('readings');
+        await p.remove('lowTarget');
+        await p.remove('highTarget');
+      }
+    } catch (_) {
+      // Si el almacén cifrado no puede autenticarse, no se destruyen datos.
+      readings = [];
+      lowTarget = 80;
+      highTarget = 130;
+    }
     if (mounted) setState(() => loading = false);
   }
 
   Future<void> _save() async {
     final p = await SharedPreferences.getInstance();
-    await p.setString('readings', jsonEncode(readings.map((e)=>e.toJson()).toList()));
-    await p.setDouble('lowTarget', lowTarget);
-    await p.setDouble('highTarget', highTarget);
+    await SecureVault.write('readings', jsonEncode(readings.map((e)=>e.toJson()).toList()));
+    await SecureVault.write('lowTarget', lowTarget.toString());
+    await SecureVault.write('highTarget', highTarget.toString());
+    await p.remove('readings');
+    await p.remove('lowTarget');
+    await p.remove('highTarget');
   }
 
   String _date(DateTime d) => '${d.day.toString().padLeft(2,'0')}/${d.month.toString().padLeft(2,'0')}/${d.year} ${d.hour.toString().padLeft(2,'0')}:${d.minute.toString().padLeft(2,'0')}';
