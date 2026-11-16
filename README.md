@@ -1,8 +1,12 @@
-# TU DOCTOR FAMILIAR 2.0
+# TU DOCTOR FAMILIAR 3.0
 
 Aplicación Flutter independiente para seguimiento educativo de glucosa y acompañamiento familiar.
 
 ## Mejoras de esta etapa
+- Rama independiente `doctor-familiar-3.0`; Android application ID generado bajo `com.tudoctorfamiliar.v3` para instalarla junto a versiones anteriores.
+- Nombre del paciente guardado en el almacén cifrado y asociado a los nuevos registros e informes.
+- Dictado en español (México) para el resultado y las notas, con revisión editable antes de guardar.
+- Permiso de micrófono declarado en Android; el usuario puede seguir escribiendo si no concede el permiso.
 - Versión de aplicación 2.0.0.
 - Capa de almacenamiento cifrado AES-256-GCM con clave protegida por Android Keystore/iOS Keychain.
 - Dependencias preparadas para informes PDF y apertura de fuentes institucionales.
