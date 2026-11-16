@@ -36,7 +36,7 @@ jobs:
               line = f'    <uses-permission android:name="{permission}" />'
               if permission not in s:
                   pos = s.find('>', s.find('<manifest')) + 1
-                  s = s[:pos] + '\\n' + line + s[pos:]
+                  s = s[:pos] + '\n' + line + s[pos:]
           s = re.sub(r'android:label="[^"]+"', 'android:label="TU DOCTOR FAMILIAR 5.0"', s, count=1)
           receivers = '''
                   <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
@@ -50,26 +50,26 @@ jobs:
                   </receiver>
           '''
           if 'ScheduledNotificationReceiver' not in s:
-              s = s.replace('</application>', receivers + '\\n        </application>')
+              s = s.replace('</application>', receivers + '\n        </application>')
           manifest.write_text(s)
           gradle = Path('android/app/build.gradle')
           if gradle.exists():
               g = gradle.read_text()
               g = re.sub(r'applicationId "[^"]+"', 'applicationId "com.tudoctorfamiliar.v5.tu_doctor_familiar"', g)
-              g = re.sub(r'compileOptions\\s*\\{', 'compileOptions {\\n        coreLibraryDesugaringEnabled true', g, count=1) if 'compileOptions' in g else g
+              g = re.sub(r'compileOptions\s*\{', 'compileOptions {\n        coreLibraryDesugaringEnabled true', g, count=1) if 'compileOptions' in g else g
               if 'coreLibraryDesugaringEnabled' not in g:
-                  g = g.replace('android {', 'android {\\n    compileOptions {\\n        coreLibraryDesugaringEnabled true\\n        sourceCompatibility JavaVersion.VERSION_17\\n        targetCompatibility JavaVersion.VERSION_17\\n    }', 1)
+                  g = g.replace('android {', 'android {\n    compileOptions {\n        coreLibraryDesugaringEnabled true\n        sourceCompatibility JavaVersion.VERSION_17\n        targetCompatibility JavaVersion.VERSION_17\n    }', 1)
               if 'coreLibraryDesugaring ' not in g:
-                  g += '\\ndependencies {\\n    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.4"\\n}\\n'
+                  g += '\ndependencies {\n    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.4"\n}\n'
               gradle.write_text(g)
           gradle_kts = Path('android/app/build.gradle.kts')
           if gradle_kts.exists():
               g = gradle_kts.read_text()
               g = re.sub(r'applicationId = "[^"]+"', 'applicationId = "com.tudoctorfamiliar.v5.tu_doctor_familiar"', g)
               if 'isCoreLibraryDesugaringEnabled' not in g:
-                  g = g.replace('compileOptions {', 'compileOptions {\\n        isCoreLibraryDesugaringEnabled = true\\n        sourceCompatibility = JavaVersion.VERSION_17\\n        targetCompatibility = JavaVersion.VERSION_17', 1)
+                  g = g.replace('compileOptions {', 'compileOptions {\n        isCoreLibraryDesugaringEnabled = true\n        sourceCompatibility = JavaVersion.VERSION_17\n        targetCompatibility = JavaVersion.VERSION_17', 1)
               if 'coreLibraryDesugaring(' not in g:
-                  g += '\\ndependencies {\\n    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")\\n}\\n'
+                  g += '\ndependencies {\n    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")\n}\n'
               gradle_kts.write_text(g)
           PY
       - name: Instalar dependencias
