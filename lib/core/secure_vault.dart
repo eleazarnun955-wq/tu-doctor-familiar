@@ -8,7 +8,7 @@ class SecureVault {
   SecureVault._();
   static const _storage = FlutterSecureStorage();
   static const _keyName = 'tdf_vault_key_v1';
-  static const _algorithm = AesGcm.with256bits();
+  static final _algorithm = AesGcm.with256bits();
 
   static Future<SecretKey> _key() async {
     final saved = await _storage.read(key: _keyName);
