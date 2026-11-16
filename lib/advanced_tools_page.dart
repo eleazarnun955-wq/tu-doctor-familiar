@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
@@ -21,6 +22,7 @@ class AdvancedToolsPage extends StatefulWidget {
 
 class _AdvancedToolsPageState extends State<AdvancedToolsPage> {
   final _notifications = FlutterLocalNotificationsPlugin();
+  final stt.SpeechToText _speech = stt.SpeechToText();
   final _family = <Map<String, dynamic>>[];
   final _meals = <Map<String, dynamic>>[];
   final _activities = <Map<String, dynamic>>[];
@@ -60,12 +62,53 @@ class _AdvancedToolsPageState extends State<AdvancedToolsPage> {
     if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(value)));
   }
 
+  Future<void> _dictate(TextEditingController controller, StateSetter setDialog) async {
+    final available = await _speech.initialize(
+      onError: (error) => _message('No se pudo usar el micrófono: ${error.errorMsg}'),
+    );
+    if (!available) {
+      _message('El reconocimiento de voz no está disponible. Puedes escribir el dato.');
+      return;
+    }
+    await _speech.listen(
+      localeId: 'es_MX',
+      listenFor: const Duration(seconds: 30),
+      pauseFor: const Duration(seconds: 3),
+      onResult: (result) {
+        if (!mounted) return;
+        setDialog(() {
+          controller.value = TextEditingValue(
+            text: result.recognizedWords,
+            selection: TextSelection.collapsed(offset: result.recognizedWords.length),
+          );
+        });
+      },
+    );
+  }
+
   Future<String?> _askText(String title, String label, {String initial = ''}) async {
     final c = TextEditingController(text: initial);
-    return showDialog<String>(context: context, builder: (ctx) => AlertDialog(
-      title: Text(title),
-      content: TextField(controller: c, autofocus: true, decoration: InputDecoration(labelText: label), textCapitalization: TextCapitalization.sentences),
-      actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar')), FilledButton(onPressed: () => Navigator.pop(ctx, c.text.trim()), child: const Text('Guardar'))],
+    return showDialog<String>(context: context, builder: (ctx) => StatefulBuilder(
+      builder: (ctx, setDialog) => AlertDialog(
+        title: Text(title),
+        content: TextField(
+          controller: c,
+          autofocus: true,
+          decoration: InputDecoration(
+            labelText: label,
+            suffixIcon: IconButton(
+              tooltip: 'Dictar por voz',
+              icon: const Icon(Icons.mic),
+              onPressed: () => _dictate(c, setDialog),
+            ),
+          ),
+          textCapitalization: TextCapitalization.sentences,
+        ),
+        actions: [
+          TextButton(onPressed: () { _speech.stop(); Navigator.pop(ctx); }, child: const Text('Cancelar')),
+          FilledButton(onPressed: () { _speech.stop(); Navigator.pop(ctx, c.text.trim()); }, child: const Text('Guardar')),
+        ],
+      ),
     ));
   }
 
