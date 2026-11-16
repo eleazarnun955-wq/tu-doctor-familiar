@@ -1,7 +1,7 @@
 name: Android APK
 on:
   push:
-    branches: [main, doctor-familiar-2.0]
+    branches: [main, doctor-familiar-2.0, doctor-familiar-3.0]
   workflow_dispatch:
 permissions:
   contents: read
@@ -23,8 +23,21 @@ jobs:
       - name: Crear estructura móvil si falta
         run: |
           if [ ! -d android ] || [ ! -d ios ]; then
-            flutter create --org com.tudoctorfamiliar.v2 --platforms=android,ios --project-name=tu_doctor_familiar .
+            flutter create --org com.tudoctorfamiliar.v3 --platforms=android,ios --project-name=tu_doctor_familiar .
           fi
+      - name: Configurar permiso de micrófono
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('android/app/src/main/AndroidManifest.xml')
+          s = p.read_text()
+          permission = '    <uses-permission android:name="android.permission.RECORD_AUDIO" />\\n'
+          if 'android.permission.RECORD_AUDIO' not in s:
+              i = s.find('>') + 1
+              s = s[:i] + '\\n' + permission + s[i:]
+          s = s.replace('android:label="tu_doctor_familiar"', 'android:label="TU DOCTOR FAMILIAR 3.0"')
+          p.write_text(s)
+          PY
       - name: Instalar dependencias
         run: flutter pub get
       - name: Analizar código
@@ -36,7 +49,7 @@ jobs:
       - name: Guardar APK
         uses: actions/upload-artifact@v4
         with:
-          name: TU-DOCTOR-FAMILIAR-Android
+          name: TU-DOCTOR-FAMILIAR-3.0-Android
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 30
