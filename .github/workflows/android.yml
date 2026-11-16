@@ -1,7 +1,7 @@
 name: Android APK
 on:
   push:
-    branches: [main, doctor-familiar-2.0, doctor-familiar-3.0, doctor-familiar-4.0]
+    branches: [main, doctor-familiar-2.0, doctor-familiar-3.0, doctor-familiar-4.0, doctor-familiar-5.0]
   workflow_dispatch:
 permissions:
   contents: read
@@ -20,24 +20,42 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - name: Crear estructura móvil independiente si falta
+      - name: Crear estructura Android independiente V5 si falta
         run: |
-          if [ ! -d android ] || [ ! -d ios ]; then
-            flutter create --org com.tudoctorfamiliar.v4 --platforms=android,ios --project-name=tu_doctor_familiar .
+          if [ ! -d android ]; then
+            flutter create --org com.tudoctorfamiliar.v5 --platforms=android --project-name=tu_doctor_familiar .
           fi
-      - name: Configurar permiso y nombre Android
+      - name: Configurar identidad y permisos V5
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p = Path('android/app/src/main/AndroidManifest.xml')
           s = p.read_text()
-          permission = '    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n'
-          if 'android.permission.RECORD_AUDIO' not in s:
+          permissions = [
+            'android.permission.RECORD_AUDIO',
+            'android.permission.POST_NOTIFICATIONS',
+            'android.permission.RECEIVE_BOOT_COMPLETED',
+            'android.permission.SCHEDULE_EXACT_ALARM'
+          ]
+          for item in permissions:
+            line = f'    <uses-permission android:name="{item}" />'
+            if item not in s:
               i = s.find('>', s.find('<manifest')) + 1
-              s = s[:i] + '\n' + permission + s[i:]
-          s = s.replace('android:label="tu_doctor_familiar"', 'android:label="TU DOCTOR FAMILIAR 4.0"')
-          s = s.replace('android:label="TU DOCTOR FAMILIAR 3.0"', 'android:label="TU DOCTOR FAMILIAR 4.0"')
+              s = s[:i] + '\\n' + line + s[i:]
+          s = s.replace('android:label="tu_doctor_familiar"', 'android:label="TU DOCTOR FAMILIAR 5.0"')
           p.write_text(s)
+          gradle = Path('android/app/build.gradle')
+          if gradle.exists():
+            g = gradle.read_text()
+            import re
+            g = re.sub(r'applicationId "[^"]+"', 'applicationId "com.tudoctorfamiliar.v5.tu_doctor_familiar"', g)
+            gradle.write_text(g)
+          gradle_kts = Path('android/app/build.gradle.kts')
+          if gradle_kts.exists():
+            g = gradle_kts.read_text()
+            import re
+            g = re.sub(r'applicationId = "[^"]+"', 'applicationId = "com.tudoctorfamiliar.v5.tu_doctor_familiar"', g)
+            gradle_kts.write_text(g)
           PY
       - name: Instalar dependencias
         run: flutter pub get
@@ -45,12 +63,12 @@ jobs:
         run: dart analyze
       - name: Ejecutar pruebas
         run: flutter test
-      - name: Compilar APK
+      - name: Compilar APK independiente
         run: flutter build apk --release
-      - name: Guardar APK
+      - name: Guardar APK V5.0
         uses: actions/upload-artifact@v4
         with:
-          name: TU-DOCTOR-FAMILIAR-4.0-Android
+          name: TU-DOCTOR-FAMILIAR-5.0-Android
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 30
