@@ -1,7 +1,7 @@
 name: Android APK
 on:
   push:
-    branches: [main, doctor-familiar-2.0, doctor-familiar-3.0, doctor-familiar-4.0, doctor-familiar-5.0, doctor-familiar-6.0]
+    branches: [main, doctor-familiar-2.0, doctor-familiar-3.0, doctor-familiar-4.0, doctor-familiar-5.0, doctor-familiar-6.0, doctor-familiar-7.0]
   workflow_dispatch:
 permissions:
   contents: read
@@ -20,10 +20,10 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - name: Crear estructura Android independiente V6 si falta
+      - name: Crear estructura Android independiente V7 si falta
         run: |
           if [ ! -d android ]; then
-            flutter create --org com.tudoctorfamiliar.v6 --platforms=android --project-name=tu_doctor_familiar .
+            flutter create --org com.tudoctorfamiliar.v7 --platforms=android --project-name=tu_doctor_familiar .
           fi
       - name: Configurar identidad, permisos y notificaciones Android
         run: |
@@ -37,7 +37,7 @@ jobs:
               if permission not in s:
                   pos = s.find('>', s.find('<manifest')) + 1
                   s = s[:pos] + '\n' + line + s[pos:]
-          s = re.sub(r'android:label="[^"]+"', 'android:label="TU DOCTOR FAMILIAR 6.0"', s, count=1)
+          s = re.sub(r'android:label="[^"]+"', 'android:label="TU DOCTOR FAMILIAR 7.0"', s, count=1)
           receivers = '''
                   <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
                   <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
@@ -80,10 +80,10 @@ jobs:
         run: flutter test
       - name: Compilar APK independiente
         run: flutter build apk --release
-      - name: Guardar APK V6.0
+      - name: Guardar APK V7.0
         uses: actions/upload-artifact@v4
         with:
-          name: TU-DOCTOR-FAMILIAR-6.0-Android
+          name: TU-DOCTOR-FAMILIAR-7.0-Android
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 30
