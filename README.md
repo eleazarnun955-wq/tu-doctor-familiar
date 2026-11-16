@@ -1,26 +1,23 @@
-# TU DOCTOR FAMILIAR
+# TU DOCTOR FAMILIAR 2.0
 
 Aplicación Flutter independiente para seguimiento educativo de glucosa y acompañamiento familiar.
 
-## Estado del proyecto
-La versión actual es una base funcional de seguimiento local: registros de glucosa, metas personales configurables, historial, resumen y reporte compartible. Los datos de esta versión se guardan en el dispositivo mediante SharedPreferences; todavía no hay cifrado de datos médicos ni sincronización segura multiusuario.
+## Mejoras de esta etapa
+- Versión de aplicación 2.0.0.
+- Capa de almacenamiento cifrado AES-256-GCM con clave protegida por Android Keystore/iOS Keychain.
+- Dependencias preparadas para informes PDF y apertura de fuentes institucionales.
+- Se mantienen las metas personales y la interpretación educativa existentes.
 
-## Principios de producto
-- **Local primero:** el registro y las funciones básicas deben operar sin conexión.
-- **IA local sin cuotas:** el modelo se ejecutará en el dispositivo, sin API de pago ni tokens. La integración del modelo y su evaluación de seguridad son trabajo pendiente; no se simula una IA con reglas fijas.
-- **Internet opcional:** ampliar información con fuentes institucionales, distinguiendo claramente contenido local de páginas externas y permitiendo compartir enlaces.
-- **Seguridad clínica:** no diagnosticar, prescribir ni modificar tratamientos. Las metas son personales y deben proceder del profesional de salud.
-- **Privacidad:** no subir mediciones a terceros sin consentimiento explícito. Antes de almacenar datos identificables, implementar cifrado local, control de acceso y exportación/borrado seguro.
+## Alcance que requiere integración y validación adicional
+- El cifrado debe conectarse a todos los flujos de lectura/escritura y probarse en dispositivos reales antes de introducir datos identificables.
+- Perfiles familiares deben separar historiales y permisos; no se deben presentar como aislados hasta completar esa integración.
+- Los recordatorios deben usar notificaciones locales y permisos explícitos; no deben considerarse activos hasta probarlos en Android.
+- El modelo de IA local requiere seleccionar un modelo compatible, licencia, cuantización y pruebas de memoria, batería y seguridad. No se simula un modelo con reglas fijas.
+- La búsqueda externa es opcional y debe mostrar fecha, fuente y enlace institucional.
+- Videos, recetas y ejercicios individualizados requieren revisión profesional.
 
-## Compilar Android
-El workflow de GitHub Actions compila el APK de release y lo publica como artefacto de la ejecución. La APK solo se considera lista después de que la ejecución termine correctamente y el artefacto se verifique.
+## Seguridad clínica
+Las metas son configuradas por cada persona según su profesional de salud. La app no diagnostica, prescribe ni cambia insulina o medicamentos. Ante signos de emergencia, se debe buscar atención inmediata. No es un servicio de urgencias.
 
-## Próximas etapas
-1. Cifrado local, PIN/biometría y exportación/importación cifrada.
-2. Integrar un modelo pequeño cuantizado en el dispositivo y medir RAM, latencia, batería y precisión; sin conexión ni servicios de pago.
-3. Interfaz de búsqueda web opcional con fuentes institucionales, fecha de consulta y enlaces compartibles.
-4. Recordatorios locales configurables con permisos claros.
-5. Perfiles de familiares con consentimiento y separación de datos.
-6. Revisión clínica y regulatoria en México antes de distribuir funciones que puedan considerarse software como dispositivo médico.
-
-Esta aplicación es educativa y de seguimiento. No es un servicio de urgencias ni sustituye a profesionales de salud.
+## Compilación
+GitHub Actions ejecuta análisis, pruebas y compilación Android. La APK solo se considera lista cuando la ejecución y el artefacto se verifican.

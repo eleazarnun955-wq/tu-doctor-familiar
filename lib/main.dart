@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
+import 'core/secure_vault.dart';
+import 'advanced_tools_page.dart';
 
 void main() => runApp(const TuDoctorFamiliarApp());
 
@@ -44,6 +46,7 @@ class _HomePageState extends State<HomePage> {
   double lowTarget = 80;
   double highTarget = 130;
   bool loading = true;
+  bool _storageError = false;
   final contexts = ['En ayunas', 'Antes de comer', '1–2 h después de comer', 'Antes de dormir', 'Otro'];
 
   @override
@@ -51,18 +54,48 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _load() async {
     final p = await SharedPreferences.getInstance();
-    final raw = p.getString('readings') ?? '[]';
-    try { readings = (jsonDecode(raw) as List).map((e) => Reading.fromJson(Map<String,dynamic>.from(e))).toList()..sort((a,b)=>b.date.compareTo(a.date)); } catch (_) { readings = []; }
-    lowTarget = p.getDouble('lowTarget') ?? 80;
-    highTarget = p.getDouble('highTarget') ?? 130;
+    // Prioriza el almacén cifrado. Si es una instalación anterior, migra
+    // los valores heredados y conserva los originales hasta confirmar escritura.
+    try {
+      final encryptedReadings = await SecureVault.read('readings');
+      final raw = encryptedReadings ?? p.getString('readings') ?? '[]';
+      readings = (jsonDecode(raw) as List)
+          .map((e) => Reading.fromJson(Map<String,dynamic>.from(e)))
+          .toList()..sort((a,b)=>b.date.compareTo(a.date));
+      final encryptedLow = await SecureVault.read('lowTarget');
+      final encryptedHigh = await SecureVault.read('highTarget');
+      lowTarget = double.tryParse(encryptedLow ?? '') ?? p.getDouble('lowTarget') ?? 80;
+      highTarget = double.tryParse(encryptedHigh ?? '') ?? p.getDouble('highTarget') ?? 130;
+      if (encryptedReadings == null && p.containsKey('readings')) {
+        await SecureVault.write('readings', jsonEncode(readings.map((e)=>e.toJson()).toList()));
+        await SecureVault.write('lowTarget', lowTarget.toString());
+        await SecureVault.write('highTarget', highTarget.toString());
+        await p.remove('readings');
+        await p.remove('lowTarget');
+        await p.remove('highTarget');
+      }
+    } catch (_) {
+      // Si el almacén cifrado falla, bloquea escrituras para no sobrescribir datos.
+      _storageError = true;
+      readings = [];
+      lowTarget = 80;
+      highTarget = 130;
+    }
     if (mounted) setState(() => loading = false);
   }
 
   Future<void> _save() async {
+    if (_storageError) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No se guardó: el almacén protegido necesita revisión. Tus datos anteriores se conservaron.')));
+      return;
+    }
     final p = await SharedPreferences.getInstance();
-    await p.setString('readings', jsonEncode(readings.map((e)=>e.toJson()).toList()));
-    await p.setDouble('lowTarget', lowTarget);
-    await p.setDouble('highTarget', highTarget);
+    await SecureVault.write('readings', jsonEncode(readings.map((e)=>e.toJson()).toList()));
+    await SecureVault.write('lowTarget', lowTarget.toString());
+    await SecureVault.write('highTarget', highTarget.toString());
+    await p.remove('readings');
+    await p.remove('lowTarget');
+    await p.remove('highTarget');
   }
 
   String _date(DateTime d) => '${d.day.toString().padLeft(2,'0')}/${d.month.toString().padLeft(2,'0')}/${d.year} ${d.hour.toString().padLeft(2,'0')}:${d.minute.toString().padLeft(2,'0')}';
@@ -113,7 +146,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final pages=[_dashboard(),_history(),_education(),_habits(),_profile()];
+    final pages=[_dashboard(),_history(),_education(),_habits(),_profile(),_advanced()];
     return Scaffold(
       appBar: AppBar(title: Row(children:[Container(width:38,height:38,decoration:BoxDecoration(color:const Color(0xFFD9F1F1),borderRadius:BorderRadius.circular(12)),child:const Icon(Icons.favorite_rounded,color:Color(0xFF087E8B))),const SizedBox(width:10),const Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('TU DOCTOR FAMILIAR',style:TextStyle(fontSize:16,fontWeight:FontWeight.w800)),Text('Salud y acompañamiento',style:TextStyle(fontSize:11,color:Colors.black54))])]),actions:[IconButton(tooltip:'Registrar glucosa',onPressed:_addReading,icon:const Icon(Icons.add_circle_outline))]),
       body: loading ? const Center(child:CircularProgressIndicator()) : SafeArea(child:IndexedStack(index:tab,children:pages)),
@@ -124,9 +157,21 @@ class _HomePageState extends State<HomePage> {
         NavigationDestination(icon:Icon(Icons.menu_book_outlined),label:'Aprender'),
         NavigationDestination(icon:Icon(Icons.eco_outlined),label:'Hábitos'),
         NavigationDestination(icon:Icon(Icons.person_outline),label:'Mi perfil'),
+        NavigationDestination(icon:Icon(Icons.build_circle_outlined),label:'Más'),
       ]),
     );
   }
+
+  Widget _advanced()=>AdvancedToolsPage(
+    readings: readings.map((r)=> {
+      'value': r.value.toStringAsFixed(0),
+      'date': _date(r.date),
+      'context': r.context,
+      'note': r.note,
+    }).toList(),
+    lowTarget: lowTarget,
+    highTarget: highTarget,
+  );
 
   Widget _page(Widget child)=>SingleChildScrollView(padding:const EdgeInsets.fromLTRB(16,8,16,28),child:child);
   Widget _section(String title,{Widget? trailing})=>Padding(padding:const EdgeInsets.only(top:22,bottom:10),child:Row(children:[Expanded(child:Text(title,style:const TextStyle(fontSize:18,fontWeight:FontWeight.w800,color:Color(0xFF173B43)))),if(trailing!=null)trailing]));
@@ -151,7 +196,7 @@ class _HomePageState extends State<HomePage> {
       if(recent.isEmpty)const Text('Tus registros aparecerán aquí.') else ...recent.map((r)=>_readingTile(r)),
       _section('Recuerda'),
       const _InfoCard(icon:Icons.health_and_safety,title:'Información, no diagnóstico',body:'La interpretación depende de la hora, comidas, tratamiento y metas individuales. Consulta tus dudas con tu equipo médico.'),
-      const SizedBox(height:10),const _InfoCard(icon:Icons.lock_outline,title:'Privacidad en esta versión',body:'Los registros se guardan localmente en el dispositivo. Esta versión inicial no cifra los datos ni sincroniza con la nube; evita guardar información médica identificable.'),
+      const SizedBox(height:10),const _InfoCard(icon:Icons.lock_outline,title:'Privacidad en esta versión',body:'Los registros se guardan cifrados localmente en este dispositivo. No se sincronizan con la nube; protege el acceso al teléfono y evita compartir información médica identificable.'),
     ]));
   }
   Widget _readingTile(Reading r)=>Card(child:ListTile(leading:CircleAvatar(backgroundColor:_statusColor(r.value).withOpacity(.12),child:Icon(Icons.water_drop,color:_statusColor(r.value))),title:Text('${r.value.toStringAsFixed(0)} mg/dL',style:const TextStyle(fontWeight:FontWeight.bold)),subtitle:Text('${r.context} · ${_date(r.date)}'),trailing:const Icon(Icons.chevron_right)));

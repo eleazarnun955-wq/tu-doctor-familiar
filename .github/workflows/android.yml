@@ -1,7 +1,7 @@
 name: Android APK
 on:
   push:
-    branches: [main]
+    branches: [main, doctor-familiar-2.0]
   workflow_dispatch:
 permissions:
   contents: read
@@ -11,6 +11,11 @@ jobs:
     steps:
       - name: Descargar código
         uses: actions/checkout@v4
+      - name: Configurar Java 21 para Android Gradle y Lint
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
       - name: Instalar Flutter
         uses: subosito/flutter-action@v2
         with:
