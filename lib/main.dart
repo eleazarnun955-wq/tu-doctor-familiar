@@ -45,6 +45,7 @@ class _HomePageState extends State<HomePage> {
   double lowTarget = 80;
   double highTarget = 130;
   bool loading = true;
+  bool _storageError = false;
   final contexts = ['En ayunas', 'Antes de comer', '1–2 h después de comer', 'Antes de dormir', 'Otro'];
 
   @override
@@ -73,7 +74,8 @@ class _HomePageState extends State<HomePage> {
         await p.remove('highTarget');
       }
     } catch (_) {
-      // Si el almacén cifrado no puede autenticarse, no se destruyen datos.
+      // Si el almacén cifrado falla, bloquea escrituras para no sobrescribir datos.
+      _storageError = true;
       readings = [];
       lowTarget = 80;
       highTarget = 130;
@@ -82,6 +84,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _save() async {
+    if (_storageError) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No se guardó: el almacén protegido necesita revisión. Tus datos anteriores se conservaron.')));
+      return;
+    }
     final p = await SharedPreferences.getInstance();
     await SecureVault.write('readings', jsonEncode(readings.map((e)=>e.toJson()).toList()));
     await SecureVault.write('lowTarget', lowTarget.toString());
