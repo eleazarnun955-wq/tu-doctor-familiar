@@ -1,27 +1,34 @@
-# TU DOCTOR FAMILIAR 3.0
+# TU DOCTOR FAMILIAR 4.0
 
-Aplicación Flutter independiente para seguimiento educativo de glucosa y acompañamiento familiar.
+Rama de trabajo independiente basada en TU DOCTOR FAMILIAR 3.0. Esta versión conserva la base funcional anterior y se prepara como una aplicación Android separada.
 
-## Mejoras de esta etapa
-- Rama independiente `doctor-familiar-3.0`; Android application ID generado bajo `com.tudoctorfamiliar.v3` para instalarla junto a versiones anteriores.
-- Nombre del paciente guardado en el almacén cifrado y asociado a los nuevos registros e informes.
-- Dictado en español (México) para el resultado y las notas, con revisión editable antes de guardar.
-- Permiso de micrófono declarado en Android; el usuario puede seguir escribiendo si no concede el permiso.
-- Versión de aplicación 2.0.0.
-- Capa de almacenamiento cifrado AES-256-GCM con clave protegida por Android Keystore/iOS Keychain.
-- Dependencias preparadas para informes PDF y apertura de fuentes institucionales.
-- Se mantienen las metas personales y la interpretación educativa existentes.
+## Identidad y compilación
+- Rama: `doctor-familiar-4.0`.
+- Versión Flutter: `4.0.0+1`.
+- La automatización crea el proyecto Android con el identificador de organización `com.tudoctorfamiliar.v4` cuando la carpeta móvil no existe, para que V4.0 no reemplace V3.0.
+- Artefacto esperado: `TU-DOCTOR-FAMILIAR-4.0-Android`.
+- La APK solo se considera lista cuando GitHub Actions termina correctamente y el artefacto se puede descargar y verificar.
 
-## Alcance que requiere integración y validación adicional
-- El cifrado debe conectarse a todos los flujos de lectura/escritura y probarse en dispositivos reales antes de introducir datos identificables.
-- Perfiles familiares deben separar historiales y permisos; no se deben presentar como aislados hasta completar esa integración.
-- Los recordatorios deben usar notificaciones locales y permisos explícitos; no deben considerarse activos hasta probarlos en Android.
-- El modelo de IA local requiere seleccionar un modelo compatible, licencia, cuantización y pruebas de memoria, batería y seguridad. No se simula un modelo con reglas fijas.
-- La búsqueda externa es opcional y debe mostrar fecha, fuente y enlace institucional.
-- Videos, recetas y ejercicios individualizados requieren revisión profesional.
+## Base heredada de V3.0
+- Registro de glucosa con contexto y notas.
+- Nombre del paciente, metas personales y dictado de voz con revisión editable.
+- Historial, resumen e informes PDF.
+- Capa de almacenamiento cifrado y recursos educativos.
+- Las funciones heredadas deben volver a analizarse y probarse en la nueva compilación.
 
-## Seguridad clínica
-Las metas son configuradas por cada persona según su profesional de salud. La app no diagnostica, prescribe ni cambia insulina o medicamentos. Ante signos de emergencia, se debe buscar atención inmediata. No es un servicio de urgencias.
+## Objetivos de V4.0
+- Perfiles familiares realmente separados, con consentimiento y permisos.
+- Estadísticas y tendencias ampliadas.
+- Diario de alimentos relacionado con mediciones.
+- Registros de presión arterial, peso y síntomas.
+- Recordatorios locales con permisos y controles claros.
+- Informes PDF ampliados para consulta.
+- Asistente educativo local, sin diagnóstico ni cambios de tratamiento.
+- Copia de seguridad y restauración protegidas.
 
-## Compilación
-GitHub Actions ejecuta análisis, pruebas y compilación Android. La APK solo se considera lista cuando la ejecución y el artefacto se verifican.
+## Estado de implementación
+Los objetivos anteriores son alcance de desarrollo, no funciones que deban darse por terminadas por aparecer en esta lista. Cada módulo debe implementarse y probarse antes de anunciarse como disponible. El modelo local requiere elegir un modelo compatible y con licencia adecuada, y validar rendimiento, memoria, batería y seguridad.
+
+## Seguridad clínica y privacidad
+Las metas deben configurarse según las indicaciones del profesional de salud. La app no diagnostica, prescribe ni modifica insulina o medicamentos. No sustituye atención médica ni servicios de emergencia. Los datos médicos requieren protección, consentimiento y pruebas de seguridad antes de usarse con información real.
+
