@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:url_launcher/url_launcher.dart';
+import 'appointments_page.dart';
 import 'core/secure_vault.dart';
 import 'advanced_tools_page.dart';
 import 'health_records_page.dart';
@@ -13,7 +15,7 @@ class TuDoctorFamiliarApp extends StatelessWidget {
   const TuDoctorFamiliarApp({super.key});
   @override
   Widget build(BuildContext context) => MaterialApp(
-    title: 'TU DOCTOR FAMILIAR',
+    title: 'TU DOCTOR FAMILIAR 7.0',
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
       useMaterial3: true,
@@ -205,7 +207,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final pages=[_dashboard(),_history(),_education(),_habits(),_profile(),_advanced(),HealthRecordsPage(patientName: patientName)];
+    final pages=[_dashboard(),_history(),_education(),_habits(),_profile(),_advanced(),HealthRecordsPage(patientName: patientName),const AppointmentsPage()];
     return Scaffold(
       appBar: AppBar(title: Row(children:[Container(width:38,height:38,decoration:BoxDecoration(color:const Color(0xFFD9F1F1),borderRadius:BorderRadius.circular(12)),child:const Icon(Icons.favorite_rounded,color:Color(0xFF087E8B))),const SizedBox(width:10),const Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('TU DOCTOR FAMILIAR',style:TextStyle(fontSize:16,fontWeight:FontWeight.w800)),Text('Salud y acompañamiento',style:TextStyle(fontSize:11,color:Colors.black54))])]),actions:[IconButton(tooltip:'Registrar glucosa',onPressed:_addReading,icon:const Icon(Icons.add_circle_outline))]),
       body: loading ? const Center(child:CircularProgressIndicator()) : SafeArea(child:IndexedStack(index:tab,children:pages)),
@@ -218,6 +220,7 @@ class _HomePageState extends State<HomePage> {
         NavigationDestination(icon:Icon(Icons.person_outline),label:'Mi perfil'),
         NavigationDestination(icon:Icon(Icons.build_circle_outlined),label:'Más'),
         NavigationDestination(icon:Icon(Icons.folder_shared_outlined),label:'Expediente'),
+        NavigationDestination(icon:Icon(Icons.calendar_month_outlined),label:'Citas'),
       ]),
     );
   }
@@ -275,6 +278,17 @@ class _HomePageState extends State<HomePage> {
     if(readings.isEmpty)const Text('No hay mediciones para mostrar.') else ...readings.map(_readingTile),
     if(readings.isNotEmpty)Align(alignment:Alignment.centerRight,child:TextButton.icon(onPressed:()async{final yes=await showDialog<bool>(context:context,builder:(c)=>AlertDialog(title:const Text('Borrar historial'),content:const Text('Esta acción elimina las mediciones guardadas en este dispositivo.'),actions:[TextButton(onPressed:()=>Navigator.pop(c,false),child:const Text('Cancelar')),FilledButton(onPressed:()=>Navigator.pop(c,true),child:const Text('Borrar'))]));if(yes==true){setState(()=>readings.clear());await _save();}},icon:const Icon(Icons.delete_outline),label:const Text('Borrar historial'))),
   ]));
+  Future<void> _openEducationLink(String value) async {
+    final uri = Uri.parse(value);
+    try {
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication) && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No se pudo abrir el enlace.')));
+      }
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No se pudo abrir el enlace.')));
+    }
+  }
+
   Widget _education()=>_page(Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
     const Text('Aprende sobre tu salud',style:TextStyle(fontSize:23,fontWeight:FontWeight.w800)),
     const Text('Material educativo general. Confirma siempre las indicaciones con personal de salud.',style:TextStyle(color:Colors.black54)),
@@ -283,6 +297,12 @@ class _HomePageState extends State<HomePage> {
     const _InfoCard(icon:Icons.monitor_heart,title:'Cómo medir y registrar',body:'Lávate y seca las manos, utiliza el equipo según sus instrucciones y anota el resultado, hora, contexto y síntomas. Si el resultado no coincide con cómo te sientes, repite la medición siguiendo las indicaciones del dispositivo y consulta.'),
     const _InfoCard(icon:Icons.warning_amber,title:'Glucosa baja',body:'Menos de 70 mg/dL suele considerarse una lectura baja. Sigue el plan que te haya dado tu equipo médico. Si la persona está inconsciente, convulsiona o no puede tragar, no le des alimentos ni bebidas por boca y llama a emergencias.'),
     const _InfoCard(icon:Icons.medication_outlined,title:'Insulina y medicamentos',body:'Nunca cambies ni suspendas dosis por una recomendación de esta app. La técnica de aplicación, conservación y dosis deben aprenderse con un profesional y las instrucciones del producto.'),
+    _section('Aprende a aplicar insulina · videos y guías'),
+    const _InfoCard(icon:Icons.video_library_outlined,title:'Antes de ver los videos',body:'La técnica cambia según el tipo de insulina, jeringa o pluma. Confirma con tu médico o educador de diabetes cuál corresponde a tu dispositivo. Estos recursos enseñan la técnica, no indican dosis ni cambian tu tratamiento.'),
+    Card(child:ListTile(leading:const Icon(Icons.play_circle_fill,color:Color(0xFF087E8B),size:32),title:const Text('Asociación Mexicana de Diabetes'),subtitle:const Text('Cómo aplicar insulina de manera adecuada y sin dolor'),trailing:const Icon(Icons.open_in_new),onTap:()=>_openEducationLink('https://www.youtube.com/watch?v=h9lPncyzePQ'))),
+    Card(child:ListTile(leading:const Icon(Icons.ondemand_video,color:Color(0xFF087E8B),size:32),title:const Text('Campus Sanofi'),subtitle:const Text('Preparar la pluma, zonas de inyección, técnica y conservación'),trailing:const Icon(Icons.open_in_new),onTap:()=>_openEducationLink('https://pro.campus.sanofi/es/otras-tematicas-diabetes/recursos/videos-sobre-el-manejo-y-administracion-de-la-insulina'))),
+    Card(child:ListTile(leading:const Icon(Icons.play_circle_outline,color:Color(0xFF087E8B),size:32),title:const Text('Sociedad Española de Diabetes'),subtitle:const Text('Video práctico de técnica de inyección'),trailing:const Icon(Icons.open_in_new),onTap:()=>_openEducationLink('https://www.sediabetes.org/pacientes/materiales/video-tecnica-de-inyeccion-de-insulina/'))),
+    Card(child:ListTile(leading:const Icon(Icons.picture_as_pdf,color:Color(0xFF087E8B),size:32),title:const Text('IMSS · Guía de insulinización'),subtitle:const Text('Documento educativo oficial sobre preparación y aplicación'),trailing:const Icon(Icons.open_in_new),onTap:()=>_openEducationLink('https://educacionensalud.imss.gob.mx/modelopreventivo/infografias/material_complementario/PDF-Tutorial-Insulinizacion.pdf'))),
     _section('Fuentes para ampliar'),
     const _InfoCard(icon:Icons.public,title:'Organización Mundial de la Salud (OMS)',body:'Consulta who.int para información general y materiales de prevención y atención de la diabetes.'),
     const _InfoCard(icon:Icons.public,title:'Federación Internacional de Diabetes (IDF)',body:'Consulta idf.org para recursos educativos, prevención y orientación para personas y familias.'),
@@ -311,7 +331,7 @@ class _HomePageState extends State<HomePage> {
     const _InfoCard(icon:Icons.family_restroom,title:'Acompañamiento familiar',body:'Los perfiles adicionales, sus mediciones separadas y sus historiales se gestionan en la pestaña Más. Cada integrante debe dar su consentimiento.'),
     const _InfoCard(icon:Icons.notifications_active_outlined,title:'Recordatorios',body:'Los recordatorios diarios configurables están disponibles en la pestaña Más. Verifica que Android permita las notificaciones; no sustituyen instrucciones ni alarmas médicas.'),
     const _InfoCard(icon:Icons.shield_outlined,title:'Seguridad y límites',body:'No es un servicio de urgencias, no diagnostica y no prescribe. No introduzcas datos identificables. Para síntomas graves o una emergencia, contacta los servicios de emergencia locales.'),
-    const SizedBox(height:12),Center(child:Text('TU DOCTOR FAMILIAR · versión 5.0.0',style:TextStyle(color:Colors.black45,fontSize:12))),
+    const SizedBox(height:12),Center(child:Text('TU DOCTOR FAMILIAR · versión 7.0.0',style:TextStyle(color:Colors.black45,fontSize:12))),
   ]));
 }
 
