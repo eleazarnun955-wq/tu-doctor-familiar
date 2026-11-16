@@ -17,13 +17,20 @@ class _HealthRecordsPageState extends State<HealthRecordsPage> {
   };
   bool loading = true;
   String? error;
-  String get patient => widget.patientName.trim().isEmpty ? 'Paciente' : widget.patientName.trim();
+  String? selectedPatient;
+  List<String> familyNames = [];
+  String get patient => selectedPatient ?? (widget.patientName.trim().isEmpty ? 'Paciente' : widget.patientName.trim());
 
   @override
   void initState() { super.initState(); _load(); }
 
   Future<void> _load() async {
     try {
+      final familyRaw = await SecureVault.read('workspace_v5');
+      if (familyRaw != null) {
+        final familyData = jsonDecode(familyRaw) as Map<String, dynamic>;
+        familyNames = (familyData['family'] as List? ?? []).map((e) => (e as Map)['name'].toString()).where((name) => name.isNotEmpty).toSet().toList();
+      }
       final raw = await SecureVault.read('workspace_v6_health');
       if (raw != null) {
         final data = jsonDecode(raw) as Map<String, dynamic>;
@@ -49,6 +56,12 @@ class _HealthRecordsPageState extends State<HealthRecordsPage> {
       }
       await SecureVault.write('workspace_v6_health', jsonEncode(data));
     } catch (_) { _msg('No se pudo guardar el expediente protegido. Revisa el almacenamiento.'); }
+  }
+
+  Future<void> _changePatient(String? value) async {
+    if (value == null || value == patient) return;
+    setState(() { selectedPatient = value; loading = true; for (final list in records.values) { list.clear(); } });
+    await _load();
   }
 
   void _msg(String value) { if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(value))); }
@@ -153,7 +166,9 @@ class _HealthRecordsPageState extends State<HealthRecordsPage> {
     if (loading) return const Center(child: CircularProgressIndicator());
     final pressure = records['pressure']!, body = records['body']!, symptoms = records['symptoms']!, medicines = records['medicines']!, labs = records['labs']!;
     return ListView(padding: const EdgeInsets.fromLTRB(16,8,16,24), children: [
-      Text('Expediente de ' + patient, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w800)),
+      Text('Expediente familiar', style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w800)),
+      DropdownButtonFormField<String>(value: patient, decoration: const InputDecoration(labelText: 'Paciente', border: OutlineInputBorder()), items: [widget.patientName.trim().isEmpty ? 'Paciente' : widget.patientName.trim(), ...familyNames].toSet().map((name) => DropdownMenuItem(value: name, child: Text(name))).toList(), onChanged: _changePatient),
+      const SizedBox(height: 8),
       const Text('Datos de salud protegidos en este teléfono.', style: TextStyle(color: Colors.black54)),
       if (error != null) Text(error!, style: const TextStyle(color: Colors.red)),
       _section('Presión arterial y pulso', Icons.monitor_heart_outlined, [
