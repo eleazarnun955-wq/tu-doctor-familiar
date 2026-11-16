@@ -23,7 +23,7 @@ jobs:
       - name: Crear estructura móvil si falta
         run: |
           if [ ! -d android ] || [ ! -d ios ]; then
-            flutter create --platforms=android,ios --project-name=tu_doctor_familiar .
+            flutter create --org com.tudoctorfamiliar.v2 --platforms=android,ios --project-name=tu_doctor_familiar .
           fi
       - name: Instalar dependencias
         run: flutter pub get
