@@ -8,3 +8,9 @@
 - Antes de activar recomendaciones personalizadas de alimentación, ejercicio o medicamentos se requiere revisión clínica.
 - Antes de publicar, evaluar la clasificación regulatoria aplicable en México con COFEPRIS y asesoría especializada.
 - No almacenar nombre completo, teléfono, domicilio ni otros identificadores hasta implementar cifrado y controles adecuados.
+
+
+## Doctor Familiar 3.0 — privacidad y voz
+- El nombre del paciente se guarda cifrado en el almacén local protegido y se incorpora a nuevos registros e informes.
+- El dictado utiliza reconocimiento de voz del dispositivo/servicio disponible en Android. El micrófono requiere permiso; el texto transcrito debe revisarse antes de guardar.
+- La versión 3.0 usa una identidad Android distinta de la 2.0. No se debe reutilizar el `applicationId` de versiones anteriores.
