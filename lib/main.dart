@@ -8,6 +8,7 @@ import 'appointments_page.dart';
 import 'core/secure_vault.dart';
 import 'advanced_tools_page.dart';
 import 'health_records_page.dart';
+import 'meal_plan_page.dart';
 
 void main() => runApp(const TuDoctorFamiliarApp());
 
@@ -15,7 +16,7 @@ class TuDoctorFamiliarApp extends StatelessWidget {
   const TuDoctorFamiliarApp({super.key});
   @override
   Widget build(BuildContext context) => MaterialApp(
-    title: 'TU DOCTOR FAMILIAR 7.0',
+    title: 'TU DOCTOR FAMILIAR 8.0',
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
       useMaterial3: true,
@@ -207,7 +208,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final pages=[_dashboard(),_history(),_education(),_habits(),_profile(),_advanced(),HealthRecordsPage(patientName: patientName),const AppointmentsPage()];
+    final pages=[_dashboard(),_history(),_education(),_habits(),_profile(),_advanced(),HealthRecordsPage(patientName: patientName),const AppointmentsPage(),const MealPlanPage()];
     return Scaffold(
       appBar: AppBar(title: Row(children:[Container(width:38,height:38,decoration:BoxDecoration(color:const Color(0xFFD9F1F1),borderRadius:BorderRadius.circular(12)),child:const Icon(Icons.favorite_rounded,color:Color(0xFF087E8B))),const SizedBox(width:10),const Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('TU DOCTOR FAMILIAR',style:TextStyle(fontSize:16,fontWeight:FontWeight.w800)),Text('Salud y acompañamiento',style:TextStyle(fontSize:11,color:Colors.black54))])]),actions:[IconButton(tooltip:'Registrar glucosa',onPressed:_addReading,icon:const Icon(Icons.add_circle_outline))]),
       body: loading ? const Center(child:CircularProgressIndicator()) : SafeArea(child:IndexedStack(index:tab,children:pages)),
@@ -221,6 +222,7 @@ class _HomePageState extends State<HomePage> {
         NavigationDestination(icon:Icon(Icons.build_circle_outlined),label:'Más'),
         NavigationDestination(icon:Icon(Icons.folder_shared_outlined),label:'Expediente'),
         NavigationDestination(icon:Icon(Icons.calendar_month_outlined),label:'Citas'),
+        NavigationDestination(icon:Icon(Icons.restaurant_menu_outlined),label:'Recetas'),
       ]),
     );
   }
