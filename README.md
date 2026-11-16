@@ -1,35 +1,35 @@
-# TU DOCTOR FAMILIAR 6.0
+# TU DOCTOR FAMILIAR 7.0
 
-Versión Android independiente basada en la rama funcional 5.0. La V5.0 permanece intacta y ambas versiones usan identificadores de paquete diferentes para poder instalarse por separado.
+Versión Android independiente construida desde la versión funcional 6.0. V6.0 permanece intacta; V7.0 usa un identificador de paquete distinto para instalar ambas aplicaciones en el mismo teléfono.
 
 ## Identidad y compilación
-- Rama: `doctor-familiar-6.0`.
-- Versión Flutter: `6.0.0+1`.
-- Android applicationId: `com.tudoctorfamiliar.v6.tu_doctor_familiar`.
-- Artefacto: `TU-DOCTOR-FAMILIAR-6.0-Android`.
-- El APK solo se considera listo cuando GitHub Actions termina correctamente y el artefacto se puede descargar y verificar.
+- Rama: `doctor-familiar-7.0`.
+- Versión Flutter: `7.0.0+1`.
+- Android applicationId: `com.tudoctorfamiliar.v7.tu_doctor_familiar`.
+- Artefacto: `TU-DOCTOR-FAMILIAR-7.0-Android`.
+- La APK solo se considera lista cuando GitHub Actions termina correctamente y el artefacto puede descargarse y verificarse.
 
-## Funciones heredadas de V5.0
-- Registro de glucosa, metas personales configurables e historial con contexto y notas.
-- Nombre del paciente y dictado de voz en español con transcripción editable.
-- Cerebro local basado en reglas transparentes, sin internet y sin diagnóstico ni cambios de tratamiento.
-- Perfiles familiares, alimentación, actividad física y recordatorios locales.
-- Informes PDF, almacenamiento cifrado local y recursos educativos.
+## Funciones incluidas y heredadas
+- Registro de glucosa con metas personales, contexto, voz a texto editable, historial y gráficas.
+- Cerebro local transparente basado en reglas; funciona sin conexión y no diagnostica ni modifica tratamientos.
+- Perfiles familiares adicionales y registros separados por paciente.
+- Expediente con presión arterial, pulso, peso, estatura, cintura, síntomas, medicamentos y resultados de laboratorio.
+- Registro de tomas anotadas, recordatorios locales, alimentación y actividad física.
+- Informes PDF, respaldo/restauración validada y almacenamiento local cifrado AES-256-GCM.
+- Agenda médica para consultas, estudios y revisiones con avisos locales cuando Android concede permisos.
+- Sección educativa con enlaces a videos y guías en español para aprender la técnica de inyección de insulina.
 
-## Mejoras integradas en V6.0
-- Expediente complementario cifrado para presión arterial, pulso, peso, estatura y cintura.
-- Diario de síntomas con intensidad, duración y notas.
-- Registro de medicamentos conforme a las instrucciones del profesional y anotaciones personales de tomas; no confirma ingestión.
-- Registro de resultados de laboratorio con fecha, unidades y notas de referencia.
-- Resumen descriptivo de registros y evolución de peso, sin diagnósticos automáticos.
-- Respaldo JSON y restauración con validación de formato y perfil, conservando registros existentes.
-- Nueva sección Expediente en la navegación.
+## Recursos educativos sobre insulina
+- Asociación Mexicana de Diabetes: https://www.youtube.com/watch?v=h9lPncyzePQ
+- Campus Sanofi: https://pro.campus.sanofi/es/otras-tematicas-diabetes/recursos/videos-sobre-el-manejo-y-administracion-de-la-insulina
+- Sociedad Española de Diabetes: https://www.sediabetes.org/pacientes/materiales/video-tecnica-de-inyeccion-de-insulina/
+- IMSS, guía de insulinización: https://educacionensalud.imss.gob.mx/modelopreventivo/infografias/material_complementario/PDF-Tutorial-Insulinizacion.pdf
 
-## Datos y privacidad
-Los nuevos registros V6 se almacenan cifrados en el dispositivo. Los respaldos compartidos se exportan como texto JSON sin cifrado externo y contienen información médica sensible: deben guardarse de forma privada. La V6 tiene un paquete Android independiente. Los datos privados de la instalación V5 no se copian automáticamente entre aplicaciones; conserva V5 y sus datos hasta que verifiques tus respaldos y la nueva versión.
+## Datos, privacidad y seguridad
+Los registros se guardan cifrados localmente en el dispositivo; no hay sincronización automática en la nube. Los respaldos exportados contienen información médica sensible y deben conservarse de forma privada. Usa el bloqueo del teléfono y no compartas expedientes sin consentimiento. No se agregan identificadores personales innecesarios.
 
 ## Seguridad clínica
-La aplicación es educativa y de seguimiento personal. No diagnostica, prescribe, interpreta laboratorios como diagnóstico ni modifica dosis de insulina o medicamentos. Las metas y tratamientos deben seguir las indicaciones del profesional de salud. Ante una emergencia, busca atención médica inmediata.
+La app es educativa y de seguimiento. No diagnostica, prescribe, calcula dosis ni modifica insulina o medicamentos. Los videos son material general: la técnica correcta depende del tipo de insulina y del dispositivo (pluma o jeringa); confirma el procedimiento con el médico o educador en diabetes y sigue las instrucciones del fabricante. Nunca uses los videos para decidir una dosis. Ante una emergencia, busca atención médica inmediata.
 
 ## Validación
-La automatización ejecuta `dart analyze`, `flutter test` y `flutter build apk --release`. La compilación exitosa no sustituye la validación en un teléfono Android real.
+GitHub Actions ejecuta `dart analyze`, `flutter test` y `flutter build apk --release`. La compilación no sustituye la prueba funcional en un teléfono Android real.
