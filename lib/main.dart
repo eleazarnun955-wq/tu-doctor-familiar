@@ -148,7 +148,12 @@ class _HomePageState extends State<HomePage> {
     if (ok == true) {
       final name = controller.text.trim();
       if (name.isEmpty) { if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Escribe el nombre del paciente.'))); return; }
-      setState(() => patientName = name);
+      setState(() {
+        patientName = name;
+        readings = readings.map((r) => r.patientName == 'Paciente'
+          ? Reading(value: r.value, date: r.date, context: r.context, note: r.note, patientName: name)
+          : r).toList();
+      });
       await _save();
     }
   }
@@ -221,6 +226,7 @@ class _HomePageState extends State<HomePage> {
       'date': _date(r.date),
       'context': r.context,
       'note': r.note,
+      'patientName': r.patientName,
     }).toList(),
     lowTarget: lowTarget,
     highTarget: highTarget,
