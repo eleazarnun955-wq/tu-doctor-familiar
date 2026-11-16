@@ -37,8 +37,8 @@ class AdvancedToolsPage extends StatelessWidget {
       pw.Text('Meta personal configurada: ${lowTarget.toStringAsFixed(0)}–${highTarget.toStringAsFixed(0)} mg/dL'),
       pw.SizedBox(height: 14),
       pw.TableHelper.fromTextArray(
-        headers: ['Fecha y hora', 'mg/dL', 'Contexto', 'Nota'],
-        data: readings.map((r) => [r['date'] ?? '', r['value'] ?? '', r['context'] ?? '', r['note'] ?? '']).toList(),
+        headers: ['Fecha y hora', 'Paciente', 'mg/dL', 'Contexto', 'Nota'],
+        data: readings.map((r) => [r['date'] ?? '', r['patientName'] ?? patientName, r['value'] ?? '', r['context'] ?? '', r['note'] ?? '']).toList(),
       ),
       pw.SizedBox(height: 16),
       pw.Text('Documento informativo. No constituye diagnóstico ni indicación de tratamiento. Comparte estos datos con tu profesional de salud.'),
