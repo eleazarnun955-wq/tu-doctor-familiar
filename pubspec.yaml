@@ -20,6 +20,10 @@ dependencies:
   flutter_local_notifications: ^19.4.0
   timezone: ^0.10.1
 
+dependency_overrides:
+  # image 4.11.0 usa ZLibDecoder.decodeLazy; archive 4.0.9 no lo incluye.
+  archive: 4.4.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
