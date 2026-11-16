@@ -222,7 +222,7 @@ class _AdvancedToolsPageState extends State<AdvancedToolsPage> {
     final average = values.reduce((a, b) => a + b) / values.length;
     final doc = pw.Document();
     doc.addPage(pw.MultiPage(build: (_) => [
-      pw.Header(level: 0, child: pw.Text('TU DOCTOR FAMILIAR 6.0')),
+      pw.Header(level: 0, child: pw.Text('TU DOCTOR FAMILIAR 7.0')),
       pw.Text('Informe de seguimiento · ${widget.patientName}'),
       pw.Text('Mediciones: ${values.length}'),
       pw.Text('Promedio simple: ${average.toStringAsFixed(1)} mg/dL'),
