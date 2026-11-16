@@ -1,0 +1,30 @@
+name: Android APK
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Instalar dependencias
+        run: flutter pub get
+      - name: Verificar formato y analizar
+        run: dart analyze --fatal-infos
+      - name: Compilar APK
+        run: flutter build apk --release
+      - name: Guardar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TU-DOCTOR-FAMILIAR-Android
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 30
