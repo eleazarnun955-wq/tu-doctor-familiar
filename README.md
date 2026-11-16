@@ -1,34 +1,35 @@
-# TU DOCTOR FAMILIAR 4.0
+# TU DOCTOR FAMILIAR 6.0
 
-Rama de trabajo independiente basada en TU DOCTOR FAMILIAR 3.0. Esta versión conserva la base funcional anterior y se prepara como una aplicación Android separada.
+Versión Android independiente basada en la rama funcional 5.0. La V5.0 permanece intacta y ambas versiones usan identificadores de paquete diferentes para poder instalarse por separado.
 
 ## Identidad y compilación
-- Rama: `doctor-familiar-4.0`.
-- Versión Flutter: `4.0.0+1`.
-- La automatización crea el proyecto Android con el identificador de organización `com.tudoctorfamiliar.v4` cuando la carpeta móvil no existe, para que V4.0 no reemplace V3.0.
-- Artefacto esperado: `TU-DOCTOR-FAMILIAR-4.0-Android`.
-- La APK solo se considera lista cuando GitHub Actions termina correctamente y el artefacto se puede descargar y verificar.
+- Rama: `doctor-familiar-6.0`.
+- Versión Flutter: `6.0.0+1`.
+- Android applicationId: `com.tudoctorfamiliar.v6.tu_doctor_familiar`.
+- Artefacto: `TU-DOCTOR-FAMILIAR-6.0-Android`.
+- El APK solo se considera listo cuando GitHub Actions termina correctamente y el artefacto se puede descargar y verificar.
 
-## Base heredada de V3.0
-- Registro de glucosa con contexto y notas.
-- Nombre del paciente, metas personales y dictado de voz con revisión editable.
-- Historial, resumen e informes PDF.
-- Capa de almacenamiento cifrado y recursos educativos.
-- Las funciones heredadas deben volver a analizarse y probarse en la nueva compilación.
+## Funciones heredadas de V5.0
+- Registro de glucosa, metas personales configurables e historial con contexto y notas.
+- Nombre del paciente y dictado de voz en español con transcripción editable.
+- Cerebro local basado en reglas transparentes, sin internet y sin diagnóstico ni cambios de tratamiento.
+- Perfiles familiares, alimentación, actividad física y recordatorios locales.
+- Informes PDF, almacenamiento cifrado local y recursos educativos.
 
-## Objetivos de V4.0
-- Perfiles familiares realmente separados, con consentimiento y permisos.
-- Estadísticas y tendencias ampliadas.
-- Diario de alimentos relacionado con mediciones.
-- Registros de presión arterial, peso y síntomas.
-- Recordatorios locales con permisos y controles claros.
-- Informes PDF ampliados para consulta.
-- Asistente educativo local, sin diagnóstico ni cambios de tratamiento.
-- Copia de seguridad y restauración protegidas.
+## Mejoras integradas en V6.0
+- Expediente complementario cifrado para presión arterial, pulso, peso, estatura y cintura.
+- Diario de síntomas con intensidad, duración y notas.
+- Registro de medicamentos conforme a las instrucciones del profesional y anotaciones personales de tomas; no confirma ingestión.
+- Registro de resultados de laboratorio con fecha, unidades y notas de referencia.
+- Resumen descriptivo de registros y evolución de peso, sin diagnósticos automáticos.
+- Respaldo JSON y restauración con validación de formato y perfil, conservando registros existentes.
+- Nueva sección Expediente en la navegación.
 
-## Estado de implementación
-Los objetivos anteriores son alcance de desarrollo, no funciones que deban darse por terminadas por aparecer en esta lista. Cada módulo debe implementarse y probarse antes de anunciarse como disponible. El modelo local requiere elegir un modelo compatible y con licencia adecuada, y validar rendimiento, memoria, batería y seguridad.
+## Datos y privacidad
+Los nuevos registros V6 se almacenan cifrados en el dispositivo. Los respaldos compartidos se exportan como texto JSON sin cifrado externo y contienen información médica sensible: deben guardarse de forma privada. La V6 tiene un paquete Android independiente. Los datos privados de la instalación V5 no se copian automáticamente entre aplicaciones; conserva V5 y sus datos hasta que verifiques tus respaldos y la nueva versión.
 
-## Seguridad clínica y privacidad
-Las metas deben configurarse según las indicaciones del profesional de salud. La app no diagnostica, prescribe ni modifica insulina o medicamentos. No sustituye atención médica ni servicios de emergencia. Los datos médicos requieren protección, consentimiento y pruebas de seguridad antes de usarse con información real.
+## Seguridad clínica
+La aplicación es educativa y de seguimiento personal. No diagnostica, prescribe, interpreta laboratorios como diagnóstico ni modifica dosis de insulina o medicamentos. Las metas y tratamientos deben seguir las indicaciones del profesional de salud. Ante una emergencia, busca atención médica inmediata.
 
+## Validación
+La automatización ejecuta `dart analyze`, `flutter test` y `flutter build apk --release`. La compilación exitosa no sustituye la validación en un teléfono Android real.
