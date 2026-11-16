@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'core/secure_vault.dart';
 import 'advanced_tools_page.dart';
 
@@ -29,9 +30,10 @@ class Reading {
   final DateTime date;
   final String context;
   final String note;
-  Reading({required this.value, required this.date, required this.context, this.note = ''});
-  Map<String, dynamic> toJson() => {'value': value, 'date': date.toIso8601String(), 'context': context, 'note': note};
-  factory Reading.fromJson(Map<String, dynamic> j) => Reading(value: (j['value'] as num).toDouble(), date: DateTime.parse(j['date']), context: j['context'] ?? 'Otro', note: j['note'] ?? '');
+  final String patientName;
+  Reading({required this.value, required this.date, required this.context, this.note = '', this.patientName = 'Paciente'});
+  Map<String, dynamic> toJson() => {'value': value, 'date': date.toIso8601String(), 'context': context, 'note': note, 'patientName': patientName};
+  factory Reading.fromJson(Map<String, dynamic> j) => Reading(value: (j['value'] as num).toDouble(), date: DateTime.parse(j['date']), context: j['context'] ?? 'Otro', note: j['note'] ?? '', patientName: j['patientName'] ?? 'Paciente');
 }
 
 class HomePage extends StatefulWidget {
@@ -45,6 +47,7 @@ class _HomePageState extends State<HomePage> {
   List<Reading> readings = [];
   double lowTarget = 80;
   double highTarget = 130;
+  String patientName = 'Paciente';
   bool loading = true;
   bool _storageError = false;
   final contexts = ['En ayunas', 'Antes de comer', '1–2 h después de comer', 'Antes de dormir', 'Otro'];
@@ -64,12 +67,17 @@ class _HomePageState extends State<HomePage> {
           .toList()..sort((a,b)=>b.date.compareTo(a.date));
       final encryptedLow = await SecureVault.read('lowTarget');
       final encryptedHigh = await SecureVault.read('highTarget');
+      final encryptedPatient = await SecureVault.read('patientName');
       lowTarget = double.tryParse(encryptedLow ?? '') ?? p.getDouble('lowTarget') ?? 80;
       highTarget = double.tryParse(encryptedHigh ?? '') ?? p.getDouble('highTarget') ?? 130;
+      patientName = (encryptedPatient ?? p.getString('patientName') ?? 'Paciente').trim();
+      if (patientName.isEmpty) patientName = 'Paciente';
       if (encryptedReadings == null && p.containsKey('readings')) {
         await SecureVault.write('readings', jsonEncode(readings.map((e)=>e.toJson()).toList()));
         await SecureVault.write('lowTarget', lowTarget.toString());
         await SecureVault.write('highTarget', highTarget.toString());
+        await SecureVault.write('patientName', patientName);
+        await p.remove('patientName');
         await p.remove('readings');
         await p.remove('lowTarget');
         await p.remove('highTarget');
@@ -93,6 +101,8 @@ class _HomePageState extends State<HomePage> {
     await SecureVault.write('readings', jsonEncode(readings.map((e)=>e.toJson()).toList()));
     await SecureVault.write('lowTarget', lowTarget.toString());
     await SecureVault.write('highTarget', highTarget.toString());
+    await SecureVault.write('patientName', patientName);
+    await p.remove('patientName');
     await p.remove('readings');
     await p.remove('lowTarget');
     await p.remove('highTarget');
@@ -102,6 +112,47 @@ class _HomePageState extends State<HomePage> {
   String _status(double v) => v < 70 ? 'Baja: revisa el plan indicado por tu profesional' : v < lowTarget ? 'Por debajo de tu meta configurada' : v > highTarget ? 'Por encima de tu meta configurada' : 'Dentro de tu meta configurada';
   Color _statusColor(double v) => v < 70 ? const Color(0xFFB3261E) : (v < lowTarget || v > highTarget) ? const Color(0xFFB66A00) : const Color(0xFF087E8B);
 
+  Future<void> _dictateInto(TextEditingController controller, StateSetter setD) async {
+    final speech = stt.SpeechToText();
+    final available = await speech.initialize(
+      onStatus: (status) { if (mounted) setD(() {}); },
+      onError: (error) { if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('No se pudo usar el micrófono: ${error.errorMsg}'))); },
+    );
+    if (!available) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('El reconocimiento de voz no está disponible. Puedes escribir el registro.')));
+      return;
+    }
+    await speech.listen(
+      localeId: 'es_MX',
+      listenFor: const Duration(seconds: 30),
+      pauseFor: const Duration(seconds: 3),
+      onResult: (result) {
+        if (!mounted) return;
+        setD(() {
+          controller.value = TextEditingValue(
+            text: result.recognizedWords,
+            selection: TextSelection.collapsed(offset: result.recognizedWords.length),
+          );
+        });
+      },
+    );
+  }
+
+  Future<void> _editPatientName() async {
+    final controller = TextEditingController(text: patientName == 'Paciente' ? '' : patientName);
+    final ok = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(
+      title: const Text('Nombre del paciente'),
+      content: TextField(controller: controller, autofocus: true, textCapitalization: TextCapitalization.words, decoration: const InputDecoration(labelText: 'Nombre completo', border: OutlineInputBorder())),
+      actions: [TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')), FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Guardar'))],
+    ));
+    if (ok == true) {
+      final name = controller.text.trim();
+      if (name.isEmpty) { if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Escribe el nombre del paciente.'))); return; }
+      setState(() => patientName = name);
+      await _save();
+    }
+  }
+
   Future<void> _addReading() async {
     final value = TextEditingController();
     final note = TextEditingController();
@@ -109,18 +160,18 @@ class _HomePageState extends State<HomePage> {
     final ok = await showDialog<bool>(context: context, builder: (ctx)=>StatefulBuilder(builder:(ctx,setD)=>AlertDialog(
       title: const Text('Registrar glucosa'),
       content: SingleChildScrollView(child: Column(mainAxisSize:MainAxisSize.min,children:[
-        TextField(controller:value,keyboardType:const TextInputType.numberWithOptions(decimal:true),decoration:const InputDecoration(labelText:'Resultado en mg/dL',border:OutlineInputBorder())),
+        TextField(controller:value,keyboardType:const TextInputType.numberWithOptions(decimal:true),decoration:InputDecoration(labelText:'Resultado en mg/dL',border:const OutlineInputBorder(),suffixIcon:IconButton(tooltip:'Dictar resultado',icon:const Icon(Icons.mic),onPressed:()=>_dictateInto(value,setD)))),
         const SizedBox(height:12),
         DropdownButtonFormField<String>(value:contextValue,decoration:const InputDecoration(labelText:'Momento de medición'),items:contexts.map((e)=>DropdownMenuItem(value:e,child:Text(e))).toList(),onChanged:(v)=>setD(()=>contextValue=v??contexts.first)),
         const SizedBox(height:12),
-        TextField(controller:note,maxLines:2,decoration:const InputDecoration(labelText:'Nota opcional (comida, síntomas, etc.)',border:OutlineInputBorder())),
+        TextField(controller:note,maxLines:2,decoration:InputDecoration(labelText:'Nota opcional (comida, síntomas, etc.)',border:const OutlineInputBorder(),suffixIcon:IconButton(tooltip:'Dictar nota',icon:const Icon(Icons.mic),onPressed:()=>_dictateInto(note,setD)))),
       ])),
       actions:[TextButton(onPressed:()=>Navigator.pop(ctx,false),child:const Text('Cancelar')),FilledButton(onPressed:()=>Navigator.pop(ctx,true),child:const Text('Guardar'))],
     )));
     if (ok == true) {
       final v = double.tryParse(value.text.trim().replaceAll(',','.'));
       if (v == null || v <= 0 || v > 1500) { if(mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Escribe un valor válido en mg/dL.'))); return; }
-      setState(()=>readings.insert(0,Reading(value:v,date:DateTime.now(),context:contextValue,note:note.text.trim())));
+      setState(()=>readings.insert(0,Reading(value:v,date:DateTime.now(),context:contextValue,note:note.text.trim(),patientName:patientName)));
       await _save();
     }
   }
@@ -141,7 +192,7 @@ class _HomePageState extends State<HomePage> {
     final sorted=[...readings]..sort((a,b)=>a.date.compareTo(b.date));
     final avg=sorted.map((e)=>e.value).reduce((a,b)=>a+b)/sorted.length;
     final lines=sorted.map((e)=>'${_date(e.date)} | ${e.value.toStringAsFixed(0)} mg/dL | ${e.context} | ${e.note}').join('\n');
-    await Share.share('TU DOCTOR FAMILIAR — Reporte personal\nMediciones: ${sorted.length}\nPromedio simple: ${avg.toStringAsFixed(1)} mg/dL\nMeta configurada: ${lowTarget.toStringAsFixed(0)}–${highTarget.toStringAsFixed(0)} mg/dL\n\nFecha | Resultado | Contexto | Nota\n$lines\n\nEste reporte es informativo y no sustituye una valoración médica.');
+    await Share.share('TU DOCTOR FAMILIAR — Reporte personal\nPaciente: ${patientName}\nMediciones: ${sorted.length}\nPromedio simple: ${avg.toStringAsFixed(1)} mg/dL\nMeta configurada: ${lowTarget.toStringAsFixed(0)}–${highTarget.toStringAsFixed(0)} mg/dL\n\nFecha | Resultado | Contexto | Nota\n$lines\n\nEste reporte es informativo y no sustituye una valoración médica.');
   }
 
   @override
@@ -171,6 +222,7 @@ class _HomePageState extends State<HomePage> {
     }).toList(),
     lowTarget: lowTarget,
     highTarget: highTarget,
+    patientName: patientName,
   );
 
   Widget _page(Widget child)=>SingleChildScrollView(padding:const EdgeInsets.fromLTRB(16,8,16,28),child:child);
@@ -240,6 +292,8 @@ class _HomePageState extends State<HomePage> {
   ]));
   Widget _profile()=>_page(Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
     const Text('Mi perfil',style:TextStyle(fontSize:23,fontWeight:FontWeight.w800)),
+    _section('Paciente'),
+    Card(child:ListTile(leading:const Icon(Icons.person,color:Color(0xFF087E8B)),title:Text(patientName,style:const TextStyle(fontWeight:FontWeight.bold)),subtitle:const Text('Nombre que aparecerá en los nuevos registros e informes'),trailing:const Icon(Icons.edit),onTap:_editPatientName)),
     _section('Metas de glucosa'),
     Card(child:ListTile(leading:const Icon(Icons.tune,color:Color(0xFF087E8B)),title:Text('${lowTarget.toStringAsFixed(0)}–${highTarget.toStringAsFixed(0)} mg/dL'),subtitle:const Text('Configura el rango indicado por tu profesional'),trailing:const Icon(Icons.edit),onTap:_editTargets)),
     _section('Herramientas'),
