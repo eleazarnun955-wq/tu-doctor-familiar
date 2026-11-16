@@ -38,7 +38,8 @@ class _AdvancedToolsPageState extends State<AdvancedToolsPage> {
       try { tz.setLocalLocation(tz.getLocation('America/Ciudad_Juarez')); } catch (_) { tz.setLocalLocation(tz.UTC); }
       await _notifications.initialize(const InitializationSettings(android: AndroidInitializationSettings('@mipmap/ic_launcher')));
       final android = _notifications.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
-      _notificationsReady = await android?.requestNotificationsPermission() ?? false;
+      final permission = await android?.requestNotificationsPermission();
+      _notificationsReady = permission ?? true;
       final saved = await SecureVault.read('workspace_v5');
       if (saved != null) {
         final data = jsonDecode(saved) as Map<String, dynamic>;
