@@ -191,8 +191,8 @@ class _HomePageState extends State<HomePage> {
     if(readings.isEmpty){ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Todavía no hay mediciones para compartir.')));return;}
     final sorted=[...readings]..sort((a,b)=>a.date.compareTo(b.date));
     final avg=sorted.map((e)=>e.value).reduce((a,b)=>a+b)/sorted.length;
-    final lines=sorted.map((e)=>'${_date(e.date)} | ${e.value.toStringAsFixed(0)} mg/dL | ${e.context} | ${e.note}').join('\n');
-    await Share.share('TU DOCTOR FAMILIAR — Reporte personal\nPaciente: ${patientName}\nMediciones: ${sorted.length}\nPromedio simple: ${avg.toStringAsFixed(1)} mg/dL\nMeta configurada: ${lowTarget.toStringAsFixed(0)}–${highTarget.toStringAsFixed(0)} mg/dL\n\nFecha | Resultado | Contexto | Nota\n$lines\n\nEste reporte es informativo y no sustituye una valoración médica.');
+    final lines=sorted.map((e)=>'${_date(e.date)} | ${e.patientName} | ${e.value.toStringAsFixed(0)} mg/dL | ${e.context} | ${e.note}').join('\n');
+    await Share.share('TU DOCTOR FAMILIAR — Reporte personal\nPaciente: ${patientName}\nMediciones: ${sorted.length}\nPromedio simple: ${avg.toStringAsFixed(1)} mg/dL\nMeta configurada: ${lowTarget.toStringAsFixed(0)}–${highTarget.toStringAsFixed(0)} mg/dL\n\nFecha | Paciente | Resultado | Contexto | Nota\n$lines\n\nEste reporte es informativo y no sustituye una valoración médica.');
   }
 
   @override
@@ -251,7 +251,7 @@ class _HomePageState extends State<HomePage> {
       const SizedBox(height:10),const _InfoCard(icon:Icons.lock_outline,title:'Privacidad en esta versión',body:'Los registros se guardan cifrados localmente en este dispositivo. No se sincronizan con la nube; protege el acceso al teléfono y evita compartir información médica identificable.'),
     ]));
   }
-  Widget _readingTile(Reading r)=>Card(child:ListTile(leading:CircleAvatar(backgroundColor:_statusColor(r.value).withOpacity(.12),child:Icon(Icons.water_drop,color:_statusColor(r.value))),title:Text('${r.value.toStringAsFixed(0)} mg/dL',style:const TextStyle(fontWeight:FontWeight.bold)),subtitle:Text('${r.context} · ${_date(r.date)}'),trailing:const Icon(Icons.chevron_right)));
+  Widget _readingTile(Reading r)=>Card(child:ListTile(leading:CircleAvatar(backgroundColor:_statusColor(r.value).withOpacity(.12),child:Icon(Icons.water_drop,color:_statusColor(r.value))),title:Text('${r.value.toStringAsFixed(0)} mg/dL',style:const TextStyle(fontWeight:FontWeight.bold)),subtitle:Text('${r.patientName} · ${r.context} · ${_date(r.date)}'),trailing:const Icon(Icons.chevron_right)));
   Widget _history()=>_page(Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
     const Text('Tu historial',style:TextStyle(fontSize:23,fontWeight:FontWeight.w800)),
     const Text('Observa tus registros y compártelos con tu profesional de salud.',style:TextStyle(color:Colors.black54)),
@@ -301,7 +301,7 @@ class _HomePageState extends State<HomePage> {
     const _InfoCard(icon:Icons.family_restroom,title:'Acompañamiento familiar',body:'La gestión de perfiles familiares con permisos y consentimiento se añadirá en una versión posterior. Por ahora, esta instalación guarda un único perfil local.'),
     const _InfoCard(icon:Icons.notifications_active_outlined,title:'Recordatorios',body:'Los avisos automáticos de medicamentos y mediciones todavía no están activos. No dependas de esta versión para recordar tratamientos.'),
     const _InfoCard(icon:Icons.shield_outlined,title:'Seguridad y límites',body:'No es un servicio de urgencias, no diagnostica y no prescribe. No introduzcas datos identificables. Para síntomas graves o una emergencia, contacta los servicios de emergencia locales.'),
-    const SizedBox(height:12),Center(child:Text('TU DOCTOR FAMILIAR · versión 0.2.0',style:TextStyle(color:Colors.black45,fontSize:12))),
+    const SizedBox(height:12),Center(child:Text('TU DOCTOR FAMILIAR · versión 3.0.0',style:TextStyle(color:Colors.black45,fontSize:12))),
   ]));
 }
 
