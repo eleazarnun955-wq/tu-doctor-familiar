@@ -171,7 +171,7 @@ class _AdvancedToolsPageState extends State<AdvancedToolsPage> {
     try {
       await _notifications.zonedSchedule(
         id, title, body, when,
-        const NotificationDetails(android: AndroidNotificationDetails('tdf_v6_reminders', 'Recordatorios de salud', channelDescription: 'Avisos personales de seguimiento', importance: Importance.high, priority: Priority.high)),
+        const NotificationDetails(android: AndroidNotificationDetails('tdf_v7_reminders', 'Recordatorios de salud', channelDescription: 'Avisos personales de seguimiento', importance: Importance.high, priority: Priority.high)),
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.time,
       );
@@ -232,7 +232,7 @@ class _AdvancedToolsPageState extends State<AdvancedToolsPage> {
       pw.SizedBox(height: 12),
       pw.Text('Documento informativo. No constituye diagnóstico ni indicación de tratamiento.'),
     ]));
-    await Printing.sharePdf(bytes: await doc.save(), filename: 'tu_doctor_familiar_6_informe.pdf');
+    await Printing.sharePdf(bytes: await doc.save(), filename: 'tu_doctor_familiar_7_informe.pdf');
   }
 
   Widget _section(String title, IconData icon, List<Widget> children) => Card(
@@ -248,7 +248,7 @@ class _AdvancedToolsPageState extends State<AdvancedToolsPage> {
 
   @override
   Widget build(BuildContext context) => ListView(padding: const EdgeInsets.fromLTRB(16, 12, 16, 28), children: [
-    const Text('TU DOCTOR FAMILIAR 5.0', style: TextStyle(fontSize: 23, fontWeight: FontWeight.w800)),
+    const Text('TU DOCTOR FAMILIAR 7.0', style: TextStyle(fontSize: 23, fontWeight: FontWeight.w800)),
     Text('Paciente principal: ${widget.patientName}', style: const TextStyle(color: Colors.black54)),
     const SizedBox(height: 5),
     if (!_loaded) const LinearProgressIndicator(),
