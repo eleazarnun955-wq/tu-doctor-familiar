@@ -1,6 +1,6 @@
 /// Enlaces de consulta a fuentes institucionales. Requieren conexión a internet.
 class MedicalSources {
-  static const Map<String, Uri> trusted = {
+  static final Map<String, Uri> trusted = {
     'OMS — Diabetes': Uri.parse('https://www.who.int/health-topics/diabetes'),
     'Federación Internacional de Diabetes': Uri.parse('https://idf.org/'),
     'American Diabetes Association': Uri.parse('https://diabetes.org/'),
