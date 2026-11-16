@@ -7,12 +7,14 @@ class AdvancedToolsPage extends StatelessWidget {
   final List<Map<String, String>> readings;
   final double lowTarget;
   final double highTarget;
+  final String patientName;
 
   const AdvancedToolsPage({
     super.key,
     required this.readings,
     required this.lowTarget,
     required this.highTarget,
+    required this.patientName,
   });
 
   Future<void> _exportPdf(BuildContext context) async {
@@ -27,7 +29,8 @@ class AdvancedToolsPage extends StatelessWidget {
     final doc = pw.Document();
     doc.addPage(pw.MultiPage(build: (_) => [
       pw.Header(level: 0, child: pw.Text('TU DOCTOR FAMILIAR')),
-      pw.Text('Informe personal de seguimiento de glucosa'),
+      pw.Text('Informe de seguimiento de glucosa'),
+      pw.Text('Paciente: $patientName'),
       pw.SizedBox(height: 8),
       pw.Text('Mediciones: ${readings.length}'),
       pw.Text('Promedio simple: ${average.toStringAsFixed(1)} mg/dL'),
@@ -53,6 +56,8 @@ class AdvancedToolsPage extends StatelessWidget {
     children: [
       const Text('Herramientas avanzadas', style: TextStyle(fontSize: 23, fontWeight: FontWeight.w800)),
       const SizedBox(height: 5),
+      Text('Paciente: $patientName', style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.w600)),
+      const SizedBox(height: 4),
       const Text('Funciones de apoyo para tu seguimiento personal.', style: TextStyle(color: Colors.black54)),
       const SizedBox(height: 16),
       Card(child: ListTile(
