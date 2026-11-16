@@ -171,7 +171,7 @@ class _AdvancedToolsPageState extends State<AdvancedToolsPage> {
     try {
       await _notifications.zonedSchedule(
         id, title, body, when,
-        const NotificationDetails(android: AndroidNotificationDetails('tdf_v5_reminders', 'Recordatorios de salud', channelDescription: 'Avisos personales de seguimiento', importance: Importance.high, priority: Priority.high)),
+        const NotificationDetails(android: AndroidNotificationDetails('tdf_v6_reminders', 'Recordatorios de salud', channelDescription: 'Avisos personales de seguimiento', importance: Importance.high, priority: Priority.high)),
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.time,
       );
@@ -222,7 +222,7 @@ class _AdvancedToolsPageState extends State<AdvancedToolsPage> {
     final average = values.reduce((a, b) => a + b) / values.length;
     final doc = pw.Document();
     doc.addPage(pw.MultiPage(build: (_) => [
-      pw.Header(level: 0, child: pw.Text('TU DOCTOR FAMILIAR 5.0')),
+      pw.Header(level: 0, child: pw.Text('TU DOCTOR FAMILIAR 6.0')),
       pw.Text('Informe de seguimiento · ${widget.patientName}'),
       pw.Text('Mediciones: ${values.length}'),
       pw.Text('Promedio simple: ${average.toStringAsFixed(1)} mg/dL'),
@@ -232,7 +232,7 @@ class _AdvancedToolsPageState extends State<AdvancedToolsPage> {
       pw.SizedBox(height: 12),
       pw.Text('Documento informativo. No constituye diagnóstico ni indicación de tratamiento.'),
     ]));
-    await Printing.sharePdf(bytes: await doc.save(), filename: 'tu_doctor_familiar_5_informe.pdf');
+    await Printing.sharePdf(bytes: await doc.save(), filename: 'tu_doctor_familiar_6_informe.pdf');
   }
 
   Widget _section(String title, IconData icon, List<Widget> children) => Card(
