@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 import 'core/secure_vault.dart';
+import 'advanced_tools_page.dart';
 
 void main() => runApp(const TuDoctorFamiliarApp());
 
@@ -145,7 +146,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final pages=[_dashboard(),_history(),_education(),_habits(),_profile()];
+    final pages=[_dashboard(),_history(),_education(),_habits(),_profile(),_advanced()];
     return Scaffold(
       appBar: AppBar(title: Row(children:[Container(width:38,height:38,decoration:BoxDecoration(color:const Color(0xFFD9F1F1),borderRadius:BorderRadius.circular(12)),child:const Icon(Icons.favorite_rounded,color:Color(0xFF087E8B))),const SizedBox(width:10),const Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('TU DOCTOR FAMILIAR',style:TextStyle(fontSize:16,fontWeight:FontWeight.w800)),Text('Salud y acompañamiento',style:TextStyle(fontSize:11,color:Colors.black54))])]),actions:[IconButton(tooltip:'Registrar glucosa',onPressed:_addReading,icon:const Icon(Icons.add_circle_outline))]),
       body: loading ? const Center(child:CircularProgressIndicator()) : SafeArea(child:IndexedStack(index:tab,children:pages)),
@@ -156,9 +157,21 @@ class _HomePageState extends State<HomePage> {
         NavigationDestination(icon:Icon(Icons.menu_book_outlined),label:'Aprender'),
         NavigationDestination(icon:Icon(Icons.eco_outlined),label:'Hábitos'),
         NavigationDestination(icon:Icon(Icons.person_outline),label:'Mi perfil'),
+        NavigationDestination(icon:Icon(Icons.build_circle_outlined),label:'Más'),
       ]),
     );
   }
+
+  Widget _advanced()=>AdvancedToolsPage(
+    readings: readings.map((r)=> {
+      'value': r.value.toStringAsFixed(0),
+      'date': _date(r.date),
+      'context': r.context,
+      'note': r.note,
+    }).toList(),
+    lowTarget: lowTarget,
+    highTarget: highTarget,
+  );
 
   Widget _page(Widget child)=>SingleChildScrollView(padding:const EdgeInsets.fromLTRB(16,8,16,28),child:child);
   Widget _section(String title,{Widget? trailing})=>Padding(padding:const EdgeInsets.only(top:22,bottom:10),child:Row(children:[Expanded(child:Text(title,style:const TextStyle(fontSize:18,fontWeight:FontWeight.w800,color:Color(0xFF173B43)))),if(trailing!=null)trailing]));
