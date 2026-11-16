@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'core/secure_vault.dart';
 import 'advanced_tools_page.dart';
+import 'health_records_page.dart';
 
 void main() => runApp(const TuDoctorFamiliarApp());
 
@@ -204,7 +205,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final pages=[_dashboard(),_history(),_education(),_habits(),_profile(),_advanced()];
+    final pages=[_dashboard(),_history(),_education(),_habits(),_profile(),_advanced(),HealthRecordsPage(patientName: patientName)];
     return Scaffold(
       appBar: AppBar(title: Row(children:[Container(width:38,height:38,decoration:BoxDecoration(color:const Color(0xFFD9F1F1),borderRadius:BorderRadius.circular(12)),child:const Icon(Icons.favorite_rounded,color:Color(0xFF087E8B))),const SizedBox(width:10),const Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('TU DOCTOR FAMILIAR',style:TextStyle(fontSize:16,fontWeight:FontWeight.w800)),Text('Salud y acompañamiento',style:TextStyle(fontSize:11,color:Colors.black54))])]),actions:[IconButton(tooltip:'Registrar glucosa',onPressed:_addReading,icon:const Icon(Icons.add_circle_outline))]),
       body: loading ? const Center(child:CircularProgressIndicator()) : SafeArea(child:IndexedStack(index:tab,children:pages)),
@@ -216,6 +217,7 @@ class _HomePageState extends State<HomePage> {
         NavigationDestination(icon:Icon(Icons.eco_outlined),label:'Hábitos'),
         NavigationDestination(icon:Icon(Icons.person_outline),label:'Mi perfil'),
         NavigationDestination(icon:Icon(Icons.build_circle_outlined),label:'Más'),
+        NavigationDestination(icon:Icon(Icons.folder_shared_outlined),label:'Expediente'),
       ]),
     );
   }
