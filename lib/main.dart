@@ -196,7 +196,7 @@ class _HomePageState extends State<HomePage> {
       if(recent.isEmpty)const Text('Tus registros aparecerán aquí.') else ...recent.map((r)=>_readingTile(r)),
       _section('Recuerda'),
       const _InfoCard(icon:Icons.health_and_safety,title:'Información, no diagnóstico',body:'La interpretación depende de la hora, comidas, tratamiento y metas individuales. Consulta tus dudas con tu equipo médico.'),
-      const SizedBox(height:10),const _InfoCard(icon:Icons.lock_outline,title:'Privacidad en esta versión',body:'Los registros se guardan localmente en el dispositivo. Esta versión inicial no cifra los datos ni sincroniza con la nube; evita guardar información médica identificable.'),
+      const SizedBox(height:10),const _InfoCard(icon:Icons.lock_outline,title:'Privacidad en esta versión',body:'Los registros se guardan cifrados localmente en este dispositivo. No se sincronizan con la nube; protege el acceso al teléfono y evita compartir información médica identificable.'),
     ]));
   }
   Widget _readingTile(Reading r)=>Card(child:ListTile(leading:CircleAvatar(backgroundColor:_statusColor(r.value).withOpacity(.12),child:Icon(Icons.water_drop,color:_statusColor(r.value))),title:Text('${r.value.toStringAsFixed(0)} mg/dL',style:const TextStyle(fontWeight:FontWeight.bold)),subtitle:Text('${r.context} · ${_date(r.date)}'),trailing:const Icon(Icons.chevron_right)));
