@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Descargar código
         uses: actions/checkout@v4
-      - name: Configurar Java 21 para Android Gradle y Lint
+      - name: Configurar Java 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -20,22 +20,21 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - name: Crear estructura móvil si falta
+      - name: Crear estructura móvil independiente si falta
         run: |
           if [ ! -d android ] || [ ! -d ios ]; then
             flutter create --org com.tudoctorfamiliar.v4 --platforms=android,ios --project-name=tu_doctor_familiar .
           fi
-      - name: Configurar permiso de micrófono
+      - name: Configurar permiso y nombre Android
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p = Path('android/app/src/main/AndroidManifest.xml')
           s = p.read_text()
-          permission = '    <uses-permission android:name="android.permission.RECORD_AUDIO" />\\n'
+          permission = '    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n'
           if 'android.permission.RECORD_AUDIO' not in s:
-              manifest_start = s.find('<manifest')
-              i = s.find('>', manifest_start) + 1
-              s = s[:i] + '\\n' + permission + s[i:]
+              i = s.find('>', s.find('<manifest')) + 1
+              s = s[:i] + '\n' + permission + s[i:]
           s = s.replace('android:label="tu_doctor_familiar"', 'android:label="TU DOCTOR FAMILIAR 4.0"')
           s = s.replace('android:label="TU DOCTOR FAMILIAR 3.0"', 'android:label="TU DOCTOR FAMILIAR 4.0"')
           p.write_text(s)
