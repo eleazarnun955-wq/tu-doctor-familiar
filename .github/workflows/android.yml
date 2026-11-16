@@ -15,17 +15,17 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - name: Crear estructura Android si falta
+      - name: Crear estructura móvil si falta
         run: |
-          if [ ! -d android ]; then
-            flutter create --platforms=android --project-name=tu_doctor_familiar .
+          if [ ! -d android ] || [ ! -d ios ]; then
+            flutter create --platforms=android,ios --project-name=tu_doctor_familiar .
           fi
       - name: Instalar dependencias
         run: flutter pub get
-      - name: Quitar prueba de plantilla incompatible
-        run: rm -rf test
       - name: Analizar código
         run: dart analyze
+      - name: Ejecutar pruebas de seguridad
+        run: flutter test
       - name: Compilar APK
         run: flutter build apk --release
       - name: Guardar APK
