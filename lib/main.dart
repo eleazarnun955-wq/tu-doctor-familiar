@@ -50,6 +50,7 @@ class _HomePageState extends State<HomePage> {
   String patientName = 'Paciente';
   bool loading = true;
   bool _storageError = false;
+  final stt.SpeechToText _speech = stt.SpeechToText();
   final contexts = ['En ayunas', 'Antes de comer', '1–2 h después de comer', 'Antes de dormir', 'Otro'];
 
   @override
@@ -113,8 +114,7 @@ class _HomePageState extends State<HomePage> {
   Color _statusColor(double v) => v < 70 ? const Color(0xFFB3261E) : (v < lowTarget || v > highTarget) ? const Color(0xFFB66A00) : const Color(0xFF087E8B);
 
   Future<void> _dictateInto(TextEditingController controller, StateSetter setD) async {
-    final speech = stt.SpeechToText();
-    final available = await speech.initialize(
+    final available = await _speech.initialize(
       onStatus: (status) { if (mounted) setD(() {}); },
       onError: (error) { if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('No se pudo usar el micrófono: ${error.errorMsg}'))); },
     );
@@ -122,7 +122,7 @@ class _HomePageState extends State<HomePage> {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('El reconocimiento de voz no está disponible. Puedes escribir el registro.')));
       return;
     }
-    await speech.listen(
+    await _speech.listen(
       localeId: 'es_MX',
       listenFor: const Duration(seconds: 30),
       pauseFor: const Duration(seconds: 3),
@@ -160,6 +160,8 @@ class _HomePageState extends State<HomePage> {
     final ok = await showDialog<bool>(context: context, builder: (ctx)=>StatefulBuilder(builder:(ctx,setD)=>AlertDialog(
       title: const Text('Registrar glucosa'),
       content: SingleChildScrollView(child: Column(mainAxisSize:MainAxisSize.min,children:[
+        Align(alignment:Alignment.centerLeft,child:Text('Paciente: $patientName',style:const TextStyle(fontWeight:FontWeight.w700,color:Color(0xFF087E8B)))),
+        const SizedBox(height:8),
         TextField(controller:value,keyboardType:const TextInputType.numberWithOptions(decimal:true),decoration:InputDecoration(labelText:'Resultado en mg/dL',border:const OutlineInputBorder(),suffixIcon:IconButton(tooltip:'Dictar resultado',icon:const Icon(Icons.mic),onPressed:()=>_dictateInto(value,setD)))),
         const SizedBox(height:12),
         DropdownButtonFormField<String>(value:contextValue,decoration:const InputDecoration(labelText:'Momento de medición'),items:contexts.map((e)=>DropdownMenuItem(value:e,child:Text(e))).toList(),onChanged:(v)=>setD(()=>contextValue=v??contexts.first)),
