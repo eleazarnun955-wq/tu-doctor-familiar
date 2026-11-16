@@ -1,7 +1,7 @@
 name: tu_doctor_familiar
 description: Aplicación educativa y de seguimiento personal para diabetes y bienestar familiar.
 publish_to: 'none'
-version: 6.0.0+1
+version: 7.0.0+1
 
 environment:
   sdk: ">=3.4.0 <4.0.0"
