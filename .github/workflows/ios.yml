@@ -27,28 +27,27 @@ jobs:
           import re
           plist = Path('ios/Runner/Info.plist')
           s = plist.read_text()
-          def set_string(key, value):
-              nonlocal_dummy = None
-              pattern = rf'(<key>{re.escape(key)}</key>\\s*<string>).*?(</string>)'
-              replacement = rf'\\g<1>{value}\\g<2>'
-              if re.search(pattern, s, flags=re.S):
-                  return re.sub(pattern, replacement, s, count=1, flags=re.S)
-              return s.replace('</dict>', f'  <key>{key}</key>\\n  <string>{value}</string>\\n</dict>', 1)
-          s = set_string('CFBundleDisplayName', 'TU DOCTOR FAMILIAR 8.0')
-          s = set_string('NSMicrophoneUsageDescription', 'Se usa el micrófono para dictar registros de salud mediante voz.')
-          s = set_string('NSSpeechRecognitionUsageDescription', 'El reconocimiento de voz convierte en texto los registros que usted dicta.')
+          def set_string(source, key, value):
+              pattern = rf'(<key>{re.escape(key)}</key>\s*<string>).*?(</string>)'
+              replacement = rf'\g<1>{value}\g<2>'
+              if re.search(pattern, source, flags=re.S):
+                  return re.sub(pattern, replacement, source, count=1, flags=re.S)
+              return source.replace('</dict>', f'  <key>{key}</key>\n  <string>{value}</string>\n</dict>', 1)
+          s = set_string(s, 'CFBundleDisplayName', 'TU DOCTOR FAMILIAR 8.0')
+          s = set_string(s, 'NSMicrophoneUsageDescription', 'Se usa el micrófono para dictar registros de salud mediante voz.')
+          s = set_string(s, 'NSSpeechRecognitionUsageDescription', 'El reconocimiento de voz convierte en texto los registros que usted dicta.')
           plist.write_text(s)
           podfile = Path('ios/Podfile')
           if podfile.exists():
               p = podfile.read_text()
               p = re.sub(r"platform :ios, '[^']+'", "platform :ios, '13.0'", p)
               if "platform :ios" not in p:
-                  p = "platform :ios, '13.0'\\n" + p
+                  p = "platform :ios, '13.0'\n" + p
               podfile.write_text(p)
           project = Path('ios/Runner.xcodeproj/project.pbxproj')
           if project.exists():
               p = project.read_text()
-              p = re.sub(r'PRODUCT_BUNDLE_IDENTIFIER = [^;]+;', 'PRODUCT_BUNDLE_IDENTIFIER = com.eleazarcompany.tudoctorfamiliar.v8;', p)
+              p = re.sub(r'PRODUCT_BUNDLE_IDENTIFIER = com\.eleazarcompany\.tudoctorfamiliarv8(?=;|\.)', 'PRODUCT_BUNDLE_IDENTIFIER = com.eleazarcompany.tudoctorfamiliar.v8', p)
               project.write_text(p)
           PY
       - name: Instalar dependencias Flutter
