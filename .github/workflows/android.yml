@@ -4,7 +4,7 @@ on:
     branches: [main, doctor-familiar-2.0, doctor-familiar-3.0, doctor-familiar-4.0, doctor-familiar-5.0, doctor-familiar-6.0, doctor-familiar-8.0]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -87,3 +87,15 @@ jobs:
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 30
+      - name: Publicar APK V8.0 para descarga pública gratuita
+        if: github.ref == 'refs/heads/doctor-familiar-8.0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp build/app/outputs/flutter-apk/app-release.apk TU-DOCTOR-FAMILIAR-8.0.apk
+          if gh release view v8.0.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload v8.0.0 TU-DOCTOR-FAMILIAR-8.0.apk --clobber --repo "$GITHUB_REPOSITORY"
+            gh release edit v8.0.0 --title "TU DOCTOR FAMILIAR 8.0" --notes "Aplicación gratuita de seguimiento personal y educación para la salud. No sustituye la atención médica, no diagnostica, no prescribe, no calcula dosis ni modifica tratamientos. Los registros se almacenan localmente en el dispositivo y no se sincronizan automáticamente entre dispositivos. Consulta siempre con un profesional de salud. No uses la aplicación para atender emergencias. La compilación automatizada no sustituye las pruebas funcionales en dispositivos reales." --latest --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create v8.0.0 TU-DOCTOR-FAMILIAR-8.0.apk --title "TU DOCTOR FAMILIAR 8.0" --notes "Aplicación gratuita de seguimiento personal y educación para la salud. No sustituye la atención médica, no diagnostica, no prescribe, no calcula dosis ni modifica tratamientos. Los registros se almacenan localmente en el dispositivo y no se sincronizan automáticamente entre dispositivos. Consulta siempre con un profesional de salud. No uses la aplicación para atender emergencias. La compilación automatizada no sustituye las pruebas funcionales en dispositivos reales." --target "$GITHUB_SHA" --latest --repo "$GITHUB_REPOSITORY"
+          fi
