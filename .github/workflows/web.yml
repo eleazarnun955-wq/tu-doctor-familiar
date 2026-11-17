@@ -47,7 +47,7 @@ jobs:
               'theme_color': '#1769aa',
               'prefer_related_applications': False,
           })
-          manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\\n')
+          manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
 
           index_path = Path('web/index.html')
           html = index_path.read_text()
