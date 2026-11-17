@@ -29,6 +29,7 @@ jobs:
         run: |
           python3 - <<'PY'
           import json
+          import re
           from pathlib import Path
 
           manifest_path = Path('web/manifest.json')
@@ -45,11 +46,11 @@ jobs:
               'theme_color': '#1769aa',
               'prefer_related_applications': False,
           })
-          manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\\n')
+          manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
 
           index_path = Path('web/index.html')
           html = index_path.read_text()
-          html = html.replace('<title>tu_doctor_familiar</title>', '<title>TU DOCTOR FAMILIAR 8.0 | ELEAZAR COMPANY</title>')
+          html = re.sub(r'<title>.*?</title>', '<title>TU DOCTOR FAMILIAR 8.0 | ELEAZAR COMPANY</title>', html, count=1)
           if '<meta name="description"' not in html:
               html = html.replace('<meta name="viewport"', '<meta name="description" content="TU DOCTOR FAMILIAR 8.0 - ELEAZAR COMPANY"><meta name="theme-color" content="#1769aa"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="TU DOCTOR"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="viewport"')
           index_path.write_text(html)
