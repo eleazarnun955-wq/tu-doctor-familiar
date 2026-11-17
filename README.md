@@ -1,35 +1,31 @@
-# TU DOCTOR FAMILIAR 7.0
+# TU DOCTOR FAMILIAR 8.0
 
-Versión Android independiente construida desde la versión funcional 6.0. V6.0 permanece intacta; V7.0 usa un identificador de paquete distinto para instalar ambas aplicaciones en el mismo teléfono.
+Aplicación Flutter de seguimiento personal y educación para la salud, con compilación Android y preparación de compilación iOS.
 
-## Identidad y compilación
-- Rama: `doctor-familiar-7.0`.
-- Versión Flutter: `7.0.0+1`.
-- Android applicationId: `com.tudoctorfamiliar.v7.tu_doctor_familiar`.
-- Artefacto: `TU-DOCTOR-FAMILIAR-7.0-Android`.
-- La APK solo se considera lista cuando GitHub Actions termina correctamente y el artefacto puede descargarse y verificarse.
+## Identidad y versiones
+- Rama de trabajo: `doctor-familiar-8.0`.
+- Versión Flutter: `8.0.0+1`.
+- Android: APK independiente, identificador `com.tudoctorfamiliar.v8.tu_doctor_familiar`.
+- iOS: identificador previsto `com.eleazarcompany.tudoctorfamiliar.v8`.
+- Marca: **ELEAZAR COMPANY**.
 
-## Funciones incluidas y heredadas
-- Registro de glucosa con metas personales, contexto, voz a texto editable, historial y gráficas.
-- Cerebro local transparente basado en reglas; funciona sin conexión y no diagnostica ni modifica tratamientos.
-- Perfiles familiares adicionales y registros separados por paciente.
-- Expediente con presión arterial, pulso, peso, estatura, cintura, síntomas, medicamentos y resultados de laboratorio.
-- Registro de tomas anotadas, recordatorios locales, alimentación y actividad física.
-- Informes PDF, respaldo/restauración validada y almacenamiento local cifrado AES-256-GCM.
-- Agenda médica para consultas, estudios y revisiones con avisos locales cuando Android concede permisos.
-- Sección educativa con enlaces a videos y guías en español para aprender la técnica de inyección de insulina.
+## Plataformas y compilación
+- Android: workflow `.github/workflows/android.yml`, genera el APK de V8.0.
+- iOS: workflow `.github/workflows/ios.yml`, usa un runner macOS, prepara la estructura iOS si falta, ejecuta análisis y pruebas y compila la app iOS sin firma.
+- El artefacto iOS sin firma sirve para validar la compilación, pero no se puede instalar directamente en un iPhone. Para generar un IPA instalable y distribuirlo por TestFlight o App Store se necesita firma, certificados y perfiles de Apple; no se deben guardar credenciales de firma en el repositorio.
 
-## Recursos educativos sobre insulina
-- Asociación Mexicana de Diabetes: https://www.youtube.com/watch?v=h9lPncyzePQ
-- Campus Sanofi: https://pro.campus.sanofi/es/otras-tematicas-diabetes/recursos/videos-sobre-el-manejo-y-administracion-de-la-insulina
-- Sociedad Española de Diabetes: https://www.sediabetes.org/pacientes/materiales/video-tecnica-de-inyeccion-de-insulina/
-- IMSS, guía de insulinización: https://educacionensalud.imss.gob.mx/modelopreventivo/infografias/material_complementario/PDF-Tutorial-Insulinizacion.pdf
+## Funciones
+- Seguimiento de glucosa con metas personales, contexto, historial y orientación educativa.
+- Perfiles familiares y registros separados por paciente.
+- Expediente de salud y herramientas de seguimiento.
+- Dictado por voz con transcripción editable.
+- Historial, informes PDF y herramientas de respaldo.
+- Agenda y recordatorios locales.
+- Recursos educativos sobre técnica de inyección de insulina.
+- Menú semanal con 21 recetas: desayuno, comida y cena durante siete días.
 
-## Datos, privacidad y seguridad
-Los registros se guardan cifrados localmente en el dispositivo; no hay sincronización automática en la nube. Los respaldos exportados contienen información médica sensible y deben conservarse de forma privada. Usa el bloqueo del teléfono y no compartas expedientes sin consentimiento. No se agregan identificadores personales innecesarios.
-
-## Seguridad clínica
-La app es educativa y de seguimiento. No diagnostica, prescribe, calcula dosis ni modifica insulina o medicamentos. Los videos son material general: la técnica correcta depende del tipo de insulina y del dispositivo (pluma o jeringa); confirma el procedimiento con el médico o educador en diabetes y sigue las instrucciones del fabricante. Nunca uses los videos para decidir una dosis. Ante una emergencia, busca atención médica inmediata.
+## Privacidad y seguridad
+Los registros de salud son información sensible. Mantén protegido el dispositivo y cualquier respaldo exportado. La aplicación ofrece herramientas de seguimiento y educación; no diagnostica, no prescribe, no calcula dosis ni modifica tratamientos. Confirma las decisiones médicas con un profesional de salud.
 
 ## Validación
-GitHub Actions ejecuta `dart analyze`, `flutter test` y `flutter build apk --release`. La compilación no sustituye la prueba funcional en un teléfono Android real.
+Los workflows ejecutan `dart analyze` y `flutter test`. La compilación automatizada no sustituye las pruebas funcionales en dispositivos Android y iPhone reales.
