@@ -333,7 +333,7 @@ class _HomePageState extends State<HomePage> {
     const _InfoCard(icon:Icons.family_restroom,title:'Acompañamiento familiar',body:'Los perfiles adicionales, sus mediciones separadas y sus historiales se gestionan en la pestaña Más. Cada integrante debe dar su consentimiento.'),
     const _InfoCard(icon:Icons.notifications_active_outlined,title:'Recordatorios',body:'Los recordatorios diarios configurables están disponibles en la pestaña Más. Verifica que Android permita las notificaciones; no sustituyen instrucciones ni alarmas médicas.'),
     const _InfoCard(icon:Icons.shield_outlined,title:'Seguridad y límites',body:'No es un servicio de urgencias, no diagnostica y no prescribe. No introduzcas datos identificables. Para síntomas graves o una emergencia, contacta los servicios de emergencia locales.'),
-    const SizedBox(height:12),Center(child:Text('TU DOCTOR FAMILIAR · versión 7.0.0',style:TextStyle(color:Colors.black45,fontSize:12))),
+    const SizedBox(height:12),Center(child:Text('TU DOCTOR FAMILIAR · versión 8.0.0',style:TextStyle(color:Colors.black45,fontSize:12))),
   ]));
 }
 
