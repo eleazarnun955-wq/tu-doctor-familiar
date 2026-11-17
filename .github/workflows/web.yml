@@ -1,83 +1,16 @@
-name: TU DOCTOR FAMILIAR - Web para iPhone y Android
+name: Diagnóstico de runner web V8.0
 on:
   push:
     branches: [doctor-familiar-8.0]
-  workflow_dispatch:
 permissions:
   contents: read
-  pages: write
-  id-token: write
-concurrency:
-  group: doctor-familiar-v8-pages
-  cancel-in-progress: false
 jobs:
-  build-and-deploy-web:
+  runner-diagnostic:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    timeout-minutes: 5
     steps:
-      - name: Descargar código
-        uses: actions/checkout@v4
-      - name: Instalar Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-      - name: Preparar plataforma web
-        run: flutter create --platforms=web --project-name tu_doctor_familiar .
-      - name: Personalizar identidad PWA ELEAZAR COMPANY
+      - name: Verificar disponibilidad del runner
         run: |
-          python3 - <<'PY'
-          import json
-          import re
-          from pathlib import Path
-
-          manifest_path = Path('web/manifest.json')
-          manifest = json.loads(manifest_path.read_text())
-          manifest.update({
-              'name': 'TU DOCTOR FAMILIAR 8.0 - ELEAZAR COMPANY',
-              'short_name': 'TU DOCTOR',
-              'description': 'Seguimiento personal y educación para la salud familiar.',
-              'display': 'standalone',
-              'orientation': 'portrait',
-              'start_url': './',
-              'scope': './',
-              'background_color': '#f5f8fc',
-              'theme_color': '#1769aa',
-              'prefer_related_applications': False,
-          })
-          manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
-
-          index_path = Path('web/index.html')
-          html = index_path.read_text()
-          html = re.sub(r'<title>.*?</title>', '<title>TU DOCTOR FAMILIAR 8.0 | ELEAZAR COMPANY</title>', html, count=1)
-          if '<meta name="description"' not in html:
-              html = html.replace('<meta name="viewport"', '<meta name="description" content="TU DOCTOR FAMILIAR 8.0 - ELEAZAR COMPANY"><meta name="theme-color" content="#1769aa"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="TU DOCTOR"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="viewport"')
-          index_path.write_text(html)
-
-          icon = Path('web/icons/Icon-192.png')
-          if icon.exists():
-              Path('web/apple-touch-icon.png').write_bytes(icon.read_bytes())
-          PY
-      - name: Instalar dependencias
-        run: flutter pub get
-      - name: Analizar código
-        run: dart analyze
-      - name: Ejecutar pruebas
-        run: flutter test
-      - name: Compilar versión web instalable
-        env:
-          REPOSITORY_NAME: ${{ github.event.repository.name }}
-        run: flutter build web --release --base-href "/${REPOSITORY_NAME}/"
-      - name: Configurar GitHub Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
-      - name: Preparar archivos publicados
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: build/web
-      - name: Publicar versión web
-        id: deployment
-        uses: actions/deploy-pages@v4
+          echo "RUNNER_OK"
+          echo "Sistema: $(uname -a)"
+          echo "Directorio: $GITHUB_WORKSPACE"
