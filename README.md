@@ -22,7 +22,7 @@ Aplicación Flutter de seguimiento personal y educación para la salud, con comp
 - Historial, informes PDF y herramientas de respaldo.
 - Agenda y recordatorios locales.
 - Recursos educativos sobre técnica de inyección de insulina.
-- Menú semanal con 21 recetas: desayuno, comida y cena durante siete días.
+- Menú semanal con 21 recetas: almuerzo, comida y cena durante siete días.
 
 ## Privacidad y seguridad
 Los registros de salud son información sensible. Mantén protegido el dispositivo y cualquier respaldo exportado. La aplicación ofrece herramientas de seguimiento y educación; no diagnostica, no prescribe, no calcula dosis ni modifica tratamientos. Confirma las decisiones médicas con un profesional de salud.
