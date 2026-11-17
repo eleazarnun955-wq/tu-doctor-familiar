@@ -25,6 +25,39 @@ jobs:
           channel: stable
       - name: Preparar plataforma web
         run: flutter create --platforms=web --project-name tu_doctor_familiar .
+      - name: Personalizar identidad PWA ELEAZAR COMPANY
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest_path = Path('web/manifest.json')
+          manifest = json.loads(manifest_path.read_text())
+          manifest.update({
+              'name': 'TU DOCTOR FAMILIAR 8.0 - ELEAZAR COMPANY',
+              'short_name': 'TU DOCTOR',
+              'description': 'Seguimiento personal y educación para la salud familiar.',
+              'display': 'standalone',
+              'orientation': 'portrait',
+              'start_url': './',
+              'scope': './',
+              'background_color': '#f5f8fc',
+              'theme_color': '#1769aa',
+              'prefer_related_applications': False,
+          })
+          manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\\n')
+
+          index_path = Path('web/index.html')
+          html = index_path.read_text()
+          html = html.replace('<title>tu_doctor_familiar</title>', '<title>TU DOCTOR FAMILIAR 8.0 | ELEAZAR COMPANY</title>')
+          if '<meta name="description"' not in html:
+              html = html.replace('<meta name="viewport"', '<meta name="description" content="TU DOCTOR FAMILIAR 8.0 - ELEAZAR COMPANY"><meta name="theme-color" content="#1769aa"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="TU DOCTOR"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="viewport"')
+          index_path.write_text(html)
+
+          icon = Path('web/icons/Icon-192.png')
+          if icon.exists():
+              Path('web/apple-touch-icon.png').write_bytes(icon.read_bytes())
+          PY
       - name: Instalar dependencias
         run: flutter pub get
       - name: Analizar código
