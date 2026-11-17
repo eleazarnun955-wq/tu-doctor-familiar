@@ -15,6 +15,9 @@ Aplicación Flutter gratuita de seguimiento personal y educación para la salud,
 - Web para iPhone, iPad, Android y computadora: workflow `.github/workflows/web.yml`. Genera la versión web de Flutter y la publica en GitHub Pages cuando Pages está disponible para el repositorio. En iPhone se abre con Safari y se puede agregar a la pantalla de inicio desde el menú Compartir.
 - La versión web no es un IPA ni una publicación de App Store. Es una alternativa web instalable (PWA) que evita la cuenta Apple Developer.
 - La publicación automática necesita que GitHub Pages esté habilitado/permitido en la configuración del repositorio. La dirección pública se informa en el resultado del despliegue de GitHub Actions.
+- En iPhone: abre el enlace publicado con **Safari**, toca **Compartir** y selecciona **Agregar a pantalla de inicio**. Después abre el icono **TU DOCTOR** desde la pantalla de inicio.
+- En Android: abre el enlace con Chrome y usa **Instalar aplicación** o **Agregar a pantalla de inicio** cuando el navegador lo ofrezca.
+- La PWA abre en modo independiente y usa el almacenamiento local del navegador; no equivale a una app IPA ni garantiza que todas las funciones nativas estén disponibles en Safari.
 
 ## Privacidad y uso entre dispositivos
 - Los registros guardados localmente en Android no se transfieren automáticamente a la versión web ni a otro teléfono.
