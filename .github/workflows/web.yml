@@ -1,0 +1,46 @@
+name: TU DOCTOR FAMILIAR - Web para iPhone y Android
+on:
+  push:
+    branches: [doctor-familiar-8.0]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  build-and-deploy-web:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Preparar plataforma web
+        run: flutter create --platforms=web --project-name tu_doctor_familiar .
+      - name: Instalar dependencias
+        run: flutter pub get
+      - name: Analizar código
+        run: dart analyze
+      - name: Ejecutar pruebas
+        run: flutter test
+      - name: Compilar versión web instalable
+        env:
+          REPOSITORY_NAME: ${{ github.event.repository.name }}
+        run: flutter build web --release --base-href "/${REPOSITORY_NAME}/"
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Preparar archivos publicados
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+      - name: Publicar versión web
+        id: deployment
+        uses: actions/deploy-pages@v4
