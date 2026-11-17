@@ -1,0 +1,76 @@
+name: TU DOCTOR FAMILIAR iOS
+on:
+  push:
+    branches: [doctor-familiar-8.0]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Crear estructura iOS si falta
+        run: |
+          if [ ! -d ios ]; then
+            flutter create --platforms=ios --org com.eleazarcompany --project-name tudoctorfamiliarv8 .
+          fi
+      - name: Configurar identidad y permisos iOS
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          plist = Path('ios/Runner/Info.plist')
+          s = plist.read_text()
+          def set_string(key, value):
+              nonlocal_dummy = None
+              pattern = rf'(<key>{re.escape(key)}</key>\\s*<string>).*?(</string>)'
+              replacement = rf'\\g<1>{value}\\g<2>'
+              if re.search(pattern, s, flags=re.S):
+                  return re.sub(pattern, replacement, s, count=1, flags=re.S)
+              return s.replace('</dict>', f'  <key>{key}</key>\\n  <string>{value}</string>\\n</dict>', 1)
+          s = set_string('CFBundleDisplayName', 'TU DOCTOR FAMILIAR 8.0')
+          s = set_string('NSMicrophoneUsageDescription', 'Se usa el micrófono para dictar registros de salud mediante voz.')
+          s = set_string('NSSpeechRecognitionUsageDescription', 'El reconocimiento de voz convierte en texto los registros que usted dicta.')
+          plist.write_text(s)
+          podfile = Path('ios/Podfile')
+          if podfile.exists():
+              p = podfile.read_text()
+              p = re.sub(r"platform :ios, '[^']+'", "platform :ios, '13.0'", p)
+              if "platform :ios" not in p:
+                  p = "platform :ios, '13.0'\\n" + p
+              podfile.write_text(p)
+          project = Path('ios/Runner.xcodeproj/project.pbxproj')
+          if project.exists():
+              p = project.read_text()
+              p = re.sub(r'PRODUCT_BUNDLE_IDENTIFIER = [^;]+;', 'PRODUCT_BUNDLE_IDENTIFIER = com.eleazarcompany.tudoctorfamiliar.v8;', p)
+              project.write_text(p)
+          PY
+      - name: Instalar dependencias Flutter
+        run: flutter pub get
+      - name: Instalar dependencias iOS
+        run: |
+          cd ios
+          pod install
+      - name: Analizar código
+        run: dart analyze
+      - name: Ejecutar pruebas
+        run: flutter test
+      - name: Compilar iOS sin firma
+        run: flutter build ios --release --no-codesign
+      - name: Empaquetar aplicación iOS compilada
+        run: |
+          cd build/ios/iphoneos
+          /usr/bin/zip -r "$GITHUB_WORKSPACE/TU-DOCTOR-FAMILIAR-8.0-iOS-unsigned.zip" Runner.app
+      - name: Guardar artefacto iOS
+        uses: actions/upload-artifact@v4
+        with:
+          name: TU-DOCTOR-FAMILIAR-8.0-iOS-sin-firma
+          path: TU-DOCTOR-FAMILIAR-8.0-iOS-unsigned.zip
+          if-no-files-found: error
+          retention-days: 30
